@@ -72,10 +72,37 @@ td.n{font-variant-numeric:tabular-nums}
 .mmnode.sel{outline:2px solid var(--warn);outline-offset:1px}
 .mmnode small{display:block;color:var(--muted);font-size:12px}
 .mmnode.root small{color:var(--bg)}
+[id]{scroll-margin-top:72px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;flex-wrap:wrap;gap:8px;padding:10px 0;background:var(--bg);border-bottom:1px solid var(--line)}
+.nav a{font-weight:600;font-size:14px;text-decoration:none;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:7px 12px;background:transparent}
+.nav a.first{background:var(--accent);color:var(--bg)}
+.nav a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.erform{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:12px}
+.erform label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);min-width:0}
+.erform input,.erform select,.erform textarea,.erfilter select{font:inherit;font-size:14px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:0;width:100%}
+.erform textarea{resize:vertical;min-height:64px}
+.erform .wide{grid-column:1/-1}
+.erform input:focus-visible,.erform select:focus-visible,.erform textarea:focus-visible,.erfilter select:focus-visible,.erbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.erbtn{font:inherit;font-weight:600;cursor:pointer;color:var(--bg);background:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:8px 14px}
+.erbtn.ghost{background:transparent;color:var(--accent)}
+.erbtn.danger{background:transparent;color:var(--bad);border-color:var(--bad)}
+.erfilter{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:16px}
+.erfilter label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);min-width:150px;flex:1 1 150px}
+.erchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.erlist{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.eritem{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.eritem.rev{opacity:.65}
+.eritem h4{margin:0;font-family:var(--display);font-size:15px;overflow-wrap:anywhere}
+.eritem p{margin:6px 0 0;overflow-wrap:anywhere;white-space:pre-wrap}
+.eritem .meta{color:var(--muted);font-size:13px;margin-top:2px}
+.eritem .acts{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:10px}
+.eritem .acts label{display:flex;gap:6px;align-items:center;cursor:pointer;font-size:14px}
+.eritem .acts input{accent-color:var(--accent);width:16px;height:16px}
 footer{color:var(--muted);font-size:13px}
 </style>
 
-<div class="wrap">
+<div class="wrap" id="topo">
 <header>
 <h1>Plano PCIES Assistente de Perícia</h1>
 <p class="sub">Análise completa do curso Perícia Oficial-AL, do plano de estudos que já está no seu site e dos seus 7 cadernos do Mapa da Prova, com reforço em Português. Marque as tarefas e o progresso fica salvo neste navegador.</p>
@@ -84,6 +111,14 @@ footer{color:var(--muted);font-size:13px}
 <a class="btn alt" href="https://www.mapadaprova.com.br/area-estudante/cadernos" target="_blank" rel="noopener">Abrir meus cadernos</a>
 </div>
 </header>
+
+<nav class="nav" aria-label="Atalhos">
+<a class="first" href="#cronograma" data-go="cronograma">Cronograma semanal</a>
+<a href="#caderno-de-erros" data-go="caderno-de-erros">Caderno de erros</a>
+<a href="#mapa-mental" data-go="mapa-mental">Mapa mental</a>
+<a href="#cadernos" data-go="cadernos">Cadernos de questões</a>
+<a href="#topo" data-go="topo">Topo</a>
+</nav>
 
 <section class="stats" aria-label="Situação atual">
 <div class="stat"><b>15</b><span>módulos no curso, com cerca de 115 tópicos</span></div>
@@ -169,7 +204,7 @@ footer{color:var(--muted);font-size:13px}
 <p class="sub" id="ptext"></p>
 </section>
 
-<div class="cols">
+<div class="cols" id="cronograma">
 <section>
 <h2>Cronograma semanal</h2>
 <p class="sub">As semanas 1 a 16 seguem o plano do site. A semana 17 é nova e reúne as leis da PCIES. As semanas 18 a 21 são extras, para o caso de a prova estar longe ou o edital pedir essas matérias.</p>
@@ -190,7 +225,7 @@ footer{color:var(--muted);font-size:13px}
 </aside>
 </div>
 
-<section>
+<section id="mapa-mental">
 <h2>Mapa mental</h2>
 <p class="sub">Escolha um mapa, clique em um ramo e use os botões para acrescentar o que você quer fixar. Os mapas já trazem a estrutura do curso e do Estatuto. O conteúdo de cada ramo é seu. Tudo fica salvo neste navegador.</p>
 <div class="mmbar">
@@ -211,7 +246,27 @@ footer{color:var(--muted);font-size:13px}
 <div class="mmwrap" id="mmwrap" tabindex="0" aria-label="Mapa mental"></div>
 </section>
 
-<section>
+<section id="caderno-de-erros">
+<h2>Caderno de erros</h2>
+<p class="sub">Anote cada questão errada com o motivo e a regra certa. Releia as que ainda não revisou e marque "Revisei" quando conseguir explicar sozinho. Tudo fica salvo neste navegador.</p>
+<form class="erform" id="erform">
+<label for="ermat">Matéria<select id="ermat"></select></label>
+<label for="ertp">Tópico<input type="text" id="ertp" placeholder="Ex.: Crase antes de pronome"></label>
+<label for="erq">Onde estava<input type="text" id="erq" placeholder="Ex.: PCIES 3, questão 12"></label>
+<label for="ermot">Por que errei<select id="ermot"></select></label>
+<label for="errule" class="wide">Regra ou resposta certa, com suas palavras<textarea id="errule" placeholder="Escreva a regra em uma ou duas linhas"></textarea></label>
+<div class="wide"><button type="submit" class="erbtn">Adicionar ao caderno</button></div>
+</form>
+<div class="erchips" id="erchips"></div>
+<div class="erfilter">
+<label for="erfmat">Filtrar por matéria<select id="erfmat"></select></label>
+<label for="erfmot">Filtrar por motivo<select id="erfmot"></select></label>
+<label for="erfrev">Mostrar<select id="erfrev"><option value="all">Todas</option><option value="pend">Só as que não revisei</option><option value="done">Só as revisadas</option></select></label>
+</div>
+<div class="erlist" id="erlist"></div>
+</section>
+
+<section id="cadernos">
 <h2>Seus cadernos de questões</h2>
 <div class="tbl"><table>
 <thead><tr><th>Caderno</th><th>Resolvidas</th><th>Acerto</th><th>Usar nas semanas</th></tr></thead>
@@ -387,5 +442,62 @@ document.getElementById("mmreset").addEventListener("click",function(){
   var d=defaults();if(d[cur]){maps[cur]=d[cur]}else{maps[cur].root=N(maps[cur].name)}sel=null;txt.value="";save();draw()});
 txt.addEventListener("keydown",function(e){if(e.key==="Enter"){document.getElementById("mmren").click()}});
 fillSel();draw();
+})();
+</script>
+<script>
+(function(){
+document.querySelectorAll(".nav a").forEach(function(a){
+  a.addEventListener("click",function(e){
+    e.preventDefault();var id=a.getAttribute("data-go"),el=document.getElementById(id);
+    if(el)el.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+});
+var EK="plano-pcies-erros-v1",list=[];
+try{list=JSON.parse(localStorage.getItem(EK)||"[]")}catch(e){list=[]}
+if(!Array.isArray(list))list=[];
+function save(){try{localStorage.setItem(EK,JSON.stringify(list))}catch(e){}}
+function $(id){return document.getElementById(id)}
+var MAT=["Português","Raciocínio Lógico","Informática","Criminalística","Medicina Legal","Direito Penal","Processual Penal","Administrativo","Constitucional","Estatuto da PCIES","Outra"];
+var MOT=["Não sabia a regra","Li rápido","Confundi conceitos","Chutei","Pegadinha da banca","Outro motivo"];
+function opts(sel,arr,all){sel.innerHTML="";if(all){var o=document.createElement("option");o.value="";o.textContent=all;sel.appendChild(o)}arr.forEach(function(x){var o=document.createElement("option");o.value=x;o.textContent=x;sel.appendChild(o)})}
+opts($("ermat"),MAT);opts($("ermot"),MOT);opts($("erfmat"),MAT,"Todas as matérias");opts($("erfmot"),MOT,"Todos os motivos");
+function chip(txt){var s=document.createElement("span");s.className="pill";s.textContent=txt;return s}
+function render(){
+  var fm=$("erfmat").value,fo=$("erfmot").value,fr=$("erfrev").value;
+  var chips=$("erchips");chips.innerHTML="";
+  var rev=list.filter(function(x){return x.ok}).length;
+  chips.appendChild(chip(list.length+" anotados, "+rev+" revisados"));
+  MOT.forEach(function(m){var c=list.filter(function(x){return x.mo===m}).length;if(c)chips.appendChild(chip(m+": "+c))});
+  var box=$("erlist");box.innerHTML="";
+  var shown=list.filter(function(x){
+    return (!fm||x.m===fm)&&(!fo||x.mo===fo)&&(fr==="all"||(fr==="done"?x.ok:!x.ok));
+  }).slice().reverse();
+  if(!shown.length){var p=document.createElement("p");p.className="sub";p.textContent=list.length?"Nenhuma anotação com esse filtro.":"Nenhum erro anotado ainda. Preencha o formulário acima e clique em Adicionar ao caderno.";box.appendChild(p);return}
+  shown.forEach(function(x){
+    var d=document.createElement("div");d.className="eritem"+(x.ok?" rev":"");
+    var h=document.createElement("h4");h.textContent=(x.tp||"Sem tópico");d.appendChild(h);
+    var mt=document.createElement("div");mt.className="meta";mt.textContent=[x.m,x.q,x.mo,x.d].filter(Boolean).join(" · ");d.appendChild(mt);
+    if(x.r){var p=document.createElement("p");p.textContent=x.r;d.appendChild(p)}
+    var a=document.createElement("div");a.className="acts";
+    var l=document.createElement("label");var cb=document.createElement("input");cb.type="checkbox";cb.id="erok-"+x.id;cb.checked=!!x.ok;
+    cb.addEventListener("change",function(){x.ok=cb.checked;save();render()});
+    l.appendChild(cb);l.appendChild(document.createTextNode("Revisei"));a.appendChild(l);
+    var b=document.createElement("button");b.type="button";b.className="erbtn danger";b.textContent="Excluir";
+    var armed=false,t=null;
+    b.addEventListener("click",function(){
+      if(!armed){armed=true;b.textContent="Confirmar exclusão";t=setTimeout(function(){armed=false;b.textContent="Excluir"},3000);return}
+      clearTimeout(t);list=list.filter(function(y){return y!==x});save();render()});
+    a.appendChild(b);d.appendChild(a);box.appendChild(d);
+  });
+}
+$("erform").addEventListener("submit",function(e){
+  e.preventDefault();
+  var tp=$("ertp").value.trim(),r=$("errule").value.trim();
+  if(!tp&&!r){$("ertp").focus();return}
+  list.push({id:Date.now()+"-"+list.length,m:$("ermat").value,tp:tp,q:$("erq").value.trim(),mo:$("ermot").value,r:r,d:new Date().toLocaleDateString("pt-BR"),ok:false});
+  save();$("ertp").value="";$("erq").value="";$("errule").value="";$("ertp").focus();render();
+});
+["erfmat","erfmot","erfrev"].forEach(function(id){$(id).addEventListener("change",render)});
+render();
 })();
 </script>
