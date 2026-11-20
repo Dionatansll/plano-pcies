@@ -59,6 +59,19 @@ td.n{font-variant-numeric:tabular-nums}
 .pt div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
 .pt b{display:block}
 .pt span{color:var(--muted);font-size:14px}
+.mmbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.mmbar select,.mmbar input[type=text]{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:0}
+.mmbar input.grow{flex:1 1 220px}
+.mmbar button{font:inherit;font-weight:600;cursor:pointer;color:var(--accent);background:transparent;border:1px solid var(--accent);border-radius:6px;padding:7px 12px}
+.mmbar button.solid{background:var(--accent);color:var(--bg)}
+.mmbar button.danger{color:var(--bad);border-color:var(--bad)}
+.mmbar button:focus-visible,.mmbar select:focus-visible,.mmbar input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mmwrap{position:relative;overflow:auto;margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;height:min(70vh,560px)}
+.mmnode{position:absolute;width:210px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:14px;line-height:1.3;cursor:pointer;overflow-wrap:anywhere}
+.mmnode.root{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+.mmnode.sel{outline:2px solid var(--warn);outline-offset:1px}
+.mmnode small{display:block;color:var(--muted);font-size:12px}
+.mmnode.root small{color:var(--bg)}
 footer{color:var(--muted);font-size:13px}
 </style>
 
@@ -178,6 +191,27 @@ footer{color:var(--muted);font-size:13px}
 </div>
 
 <section>
+<h2>Mapa mental</h2>
+<p class="sub">Escolha um mapa, clique em um ramo e use os botões para acrescentar o que você quer fixar. Os mapas já trazem a estrutura do curso e do Estatuto. O conteúdo de cada ramo é seu. Tudo fica salvo neste navegador.</p>
+<div class="mmbar">
+<label for="mmsel" class="sub" style="margin:0">Mapa</label>
+<select id="mmsel"></select>
+<input type="text" id="mmnew" placeholder="Nome de um mapa novo" aria-label="Nome de um mapa novo">
+<button type="button" id="mmadd">Criar mapa</button>
+<button type="button" id="mmreset" class="danger">Restaurar este mapa</button>
+</div>
+<div class="mmbar">
+<input type="text" id="mmtext" class="grow" placeholder="Clique em um ramo para editar o texto" aria-label="Texto do ramo">
+<button type="button" id="mmren" class="solid">Salvar texto</button>
+<button type="button" id="mmchild">Novo ramo filho</button>
+<button type="button" id="mmsib">Novo ramo irmão</button>
+<button type="button" id="mmfold">Recolher ou abrir</button>
+<button type="button" id="mmdel" class="danger">Excluir ramo</button>
+</div>
+<div class="mmwrap" id="mmwrap" tabindex="0" aria-label="Mapa mental"></div>
+</section>
+
+<section>
 <h2>Seus cadernos de questões</h2>
 <div class="tbl"><table>
 <thead><tr><th>Caderno</th><th>Resolvidas</th><th>Acerto</th><th>Usar nas semanas</th></tr></thead>
@@ -269,4 +303,89 @@ function render(){
   document.getElementById("ptext").textContent=done+" de "+total+" tarefas das semanas 1 a 16 ("+pct+"%).";
 }
 render();
+</script>
+<script>
+(function(){
+var MK="plano-pcies-mapas-v1";
+function N(t,c){return {t:t,c:c||[]}}
+function defaults(){return {
+ port:{name:"Português",root:N("Língua Portuguesa",[N("Interpretação de textos"),N("Ortografia oficial"),N("Morfologia e classes de palavras"),N("Coordenação e subordinação"),N("Concordância verbal e nominal"),N("Regência verbal e nominal"),N("Crase"),N("Sinais de pontuação"),N("Coesão textual"),N("Pronomes átonos"),N("Reescrita de frases e parágrafos")])},
+ crim:{name:"Criminalística",root:N("Criminalística",[N("Doutrina",[N("Princípios"),N("Histórico")]),N("Áreas de atuação"),N("Prova e corpo de delito"),N("Documentos criminalísticos"),N("Cadeia de custódia"),N("Locais de crime")])},
+ est:{name:"Estatuto da PCIES",root:N("Estatuto dos Policiais Científicos (LC 1.136/2026)",[
+  N("Título I: Disposições preliminares (arts. 1 e 2)",[N("Objetivos do Estatuto"),N("Princípios e valores éticos")]),
+  N("Título II: Disposições específicas (arts. 3 a 31)",[N("Policial científico e cargos (art. 3)"),N("Atos de provimento"),N("Requisitos para investidura"),N("Concurso público"),N("Curso de formação"),N("Nomeação, posse e exercício"),N("Estágio probatório (arts. 22 a 26)"),N("Estabilidade (art. 27)"),N("Vacância (arts. 28 a 31)")]),
+  N("Título III: Direitos e vantagens (arts. 32 a 66)",[N("Garantias e prerrogativas (art. 32)"),N("Remuneração e vantagens"),N("Cargo em comissão (art. 38)"),N("Regime e jornada (art. 39)"),N("Desenvolvimento na carreira (art. 40)"),N("Férias"),N("Licenças e afastamentos"),N("Honrarias"),N("Tempo de serviço e de contribuição")]),
+  N("Título IV: Seguridade social e RPPS (art. 67)"),
+  N("Título V: Direito de petição (arts. 68 a 74)"),
+  N("Título VI: Prescrição (arts. 75 a 79)"),
+  N("Título VII: Regime disciplinar (arts. 80 a 100)",[N("Deveres (art. 80)"),N("Transgressões disciplinares (arts. 81 e 82)"),N("Responsabilidades (arts. 83 a 88)"),N("Penas disciplinares (arts. 89 a 100)")]),
+  N("Título VIII: Procedimentos disciplinares (arts. 101 a 155)",[N("Disposições gerais"),N("Competência para penalidades"),N("Procedimento preliminar"),N("Termo de ajustamento de conduta"),N("Comissão processante"),N("Suspensão preventiva"),N("Processo administrativo disciplinar"),N("Revisão do processo (arts. 149 a 155)")]),
+  N("Título IX: Disposições finais (arts. 156 a 164)")])}
+}}
+var maps=null;
+try{maps=JSON.parse(localStorage.getItem(MK)||"null")}catch(e){maps=null}
+if(!maps||typeof maps!=="object")maps=defaults();
+function save(){try{localStorage.setItem(MK,JSON.stringify(maps))}catch(e){}}
+var cur=Object.keys(maps)[0],sel=null;
+var sel$=document.getElementById("mmsel"),wrap=document.getElementById("mmwrap"),txt=document.getElementById("mmtext");
+function fillSel(){sel$.innerHTML="";Object.keys(maps).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=maps[k].name;if(k===cur)o.selected=true;sel$.appendChild(o)})}
+function findParent(root,n){if(root.c.indexOf(n)>-1)return root;for(var i=0;i<root.c.length;i++){var r=findParent(root.c[i],n);if(r)return r}return null}
+var W=210,GX=70,GY=12;
+function hOf(n){var lines=Math.ceil(n.t.length/24)||1;return 20+lines*18+(n.o&&n.c.length?16:0)}
+function layout(n,d,y,out){
+  var h=hOf(n),kids=(n.o?[]:n.c),sub;
+  if(!kids.length){out.push({n:n,x:16+d*(W+GX),y:y,h:h});return {top:y,h:h,cy:y+h/2,idx:out.length-1}}
+  var cy0=y,tot=0,first=null,last=null,rec=[];
+  kids.forEach(function(k){var r=layout(k,d+1,y+tot,out);rec.push(r);tot+=r.h+GY});
+  tot-=GY;
+  var mid=(rec[0].cy+rec[rec.length-1].cy)/2;
+  var py=Math.max(mid-h/2,y);
+  var span=Math.max(tot,h);
+  out.push({n:n,x:16+d*(W+GX),y:py,h:h,kids:rec});
+  return {top:y,h:span,cy:py+h/2,idx:out.length-1};
+}
+function draw(){
+  var m=maps[cur];wrap.innerHTML="";if(!m)return;
+  var out=[];layout(m.root,0,16,out);
+  var maxX=0,maxY=0;out.forEach(function(o){maxX=Math.max(maxX,o.x+W);maxY=Math.max(maxY,o.y+o.h)});
+  var svgNS="http://www.w3.org/2000/svg",svg=document.createElementNS(svgNS,"svg");
+  svg.setAttribute("width",maxX+16);svg.setAttribute("height",maxY+16);svg.style.cssText="position:absolute;left:0;top:0";
+  var byNode=new Map();out.forEach(function(o){byNode.set(o.n,o)});
+  out.forEach(function(o){
+    if(o.n.o)return;
+    o.n.c.forEach(function(k){var c=byNode.get(k);if(!c)return;
+      var x1=o.x+W,y1=o.y+o.h/2,x2=c.x,y2=c.y+c.h/2,mx=(x1+x2)/2;
+      var p=document.createElementNS(svgNS,"path");
+      p.setAttribute("d","M"+x1+" "+y1+" C"+mx+" "+y1+" "+mx+" "+y2+" "+x2+" "+y2);
+      p.setAttribute("fill","none");p.style.stroke="var(--muted)";p.style.opacity=".5";p.setAttribute("stroke-width","1.5");
+      svg.appendChild(p)});
+  });
+  wrap.appendChild(svg);
+  var inner=document.createElement("div");inner.style.cssText="position:relative;width:"+(maxX+16)+"px;height:"+(maxY+16)+"px";
+  out.forEach(function(o){
+    var d=document.createElement("div");d.className="mmnode"+(o.n===m.root?" root":"")+(o.n===sel?" sel":"");
+    d.style.left=o.x+"px";d.style.top=o.y+"px";d.style.minHeight=o.h+"px";
+    d.textContent=o.n.t;
+    if(o.n.o&&o.n.c.length){var s=document.createElement("small");s.textContent="+ "+o.n.c.length+" ramos recolhidos";d.appendChild(s)}
+    d.addEventListener("click",function(){sel=o.n;txt.value=o.n.t;draw()});
+    inner.appendChild(d);
+  });
+  wrap.appendChild(inner);
+  svg.style.zIndex=0;inner.style.zIndex=1;
+}
+function mut(fn){if(!sel){txt.focus();return}fn();save();draw()}
+document.getElementById("mmren").addEventListener("click",function(){mut(function(){var v=txt.value.trim();if(v)sel.t=v})});
+document.getElementById("mmchild").addEventListener("click",function(){mut(function(){var n=N(txt.value.trim()&&txt.value.trim()!==sel.t?txt.value.trim():"Novo ramo");sel.o=false;sel.c.push(n);sel=n;txt.value=n.t})});
+document.getElementById("mmsib").addEventListener("click",function(){mut(function(){var p=findParent(maps[cur].root,sel);if(!p)return;var n=N(txt.value.trim()&&txt.value.trim()!==sel.t?txt.value.trim():"Novo ramo");p.c.splice(p.c.indexOf(sel)+1,0,n);sel=n;txt.value=n.t})});
+document.getElementById("mmfold").addEventListener("click",function(){mut(function(){if(sel.c.length)sel.o=!sel.o})});
+document.getElementById("mmdel").addEventListener("click",function(){mut(function(){var p=findParent(maps[cur].root,sel);if(!p)return;p.c.splice(p.c.indexOf(sel),1);sel=p;txt.value=p.t})});
+sel$.addEventListener("change",function(){cur=sel$.value;sel=null;txt.value="";draw()});
+document.getElementById("mmadd").addEventListener("click",function(){
+  var inp=document.getElementById("mmnew"),v=inp.value.trim();if(!v)return;
+  var k="m"+Date.now();maps[k]={name:v,root:N(v)};cur=k;sel=maps[k].root;txt.value=v;inp.value="";save();fillSel();draw()});
+document.getElementById("mmreset").addEventListener("click",function(){
+  var d=defaults();if(d[cur]){maps[cur]=d[cur]}else{maps[cur].root=N(maps[cur].name)}sel=null;txt.value="";save();draw()});
+txt.addEventListener("keydown",function(e){if(e.key==="Enter"){document.getElementById("mmren").click()}});
+fillSel();draw();
+})();
 </script>
