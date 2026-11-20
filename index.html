@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Plano PCIES Assistente de Perícia</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
@@ -76,7 +81,26 @@ td.n{font-variant-numeric:tabular-nums}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
 .nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;flex-wrap:wrap;gap:8px;padding:10px 0;background:var(--bg);border-bottom:1px solid var(--line)}
 .nav a{font-weight:600;font-size:14px;text-decoration:none;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:7px 12px;background:transparent}
-.nav a.first{background:var(--accent);color:var(--bg)}
+.nav a.on{background:var(--accent);color:var(--bg)}
+[hidden]{display:none!important}
+.view{display:flex;flex-direction:column;gap:30px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0}
+.kpi span.l{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.kpi b{display:block;font-family:var(--display);font-size:28px;line-height:1.2;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kpi small{color:var(--muted);font-size:13px;display:block;overflow-wrap:anywhere}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0}
+.panel h3{margin-bottom:8px}
+.panel ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.panel li{display:flex;gap:8px;align-items:flex-start;overflow-wrap:anywhere}
+.panel li .pill{flex:none}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+a.tile{display:block;text-decoration:none;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+a.tile b{display:block;font-family:var(--display);font-size:17px;color:var(--accent)}
+a.tile span{color:var(--muted);font-size:14px}
+a.tile:hover{border-color:var(--accent)}
+a.tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .nav a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .erform{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:12px}
 .erform label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);min-width:0}
@@ -102,6 +126,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 footer{color:var(--muted);font-size:13px}
 </style>
 
+<style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+
 <div class="wrap" id="topo">
 <header>
 <h1>Plano PCIES Assistente de Perícia</h1>
@@ -112,13 +140,39 @@ footer{color:var(--muted);font-size:13px}
 </div>
 </header>
 
-<nav class="nav" aria-label="Atalhos">
-<a class="first" href="#cronograma" data-go="cronograma">Cronograma semanal</a>
+<nav class="nav" aria-label="Telas">
+<a class="on" href="#inicio" data-go="inicio">Início</a>
+<a href="#cronograma" data-go="cronograma">Cronograma semanal</a>
 <a href="#caderno-de-erros" data-go="caderno-de-erros">Caderno de erros</a>
 <a href="#mapa-mental" data-go="mapa-mental">Mapa mental</a>
 <a href="#cadernos" data-go="cadernos">Cadernos de questões</a>
-<a href="#topo" data-go="topo">Topo</a>
+<a href="#analise" data-go="analise">Análise do curso</a>
 </nav>
+
+<div class="view" id="v-inicio">
+<section>
+<h2>Visão geral</h2>
+<div class="kpis">
+<div class="kpi"><span class="l">Cronograma</span><b id="d-prog">0%</b><small id="d-prog-sub"></small><div class="bar"><i id="d-fill"></i></div></div>
+<div class="kpi"><span class="l">Semana atual</span><b id="d-week">Semana 1</b><small id="d-week-sub"></small></div>
+<div class="kpi"><span class="l">Erros para revisar</span><b id="d-err">0</b><small id="d-err-sub"></small></div>
+<div class="kpi"><span class="l">Mapas mentais</span><b id="d-maps">3</b><small>Português, Criminalística e Estatuto, mais os que você criar</small></div>
+</div>
+<div class="dgrid">
+<div class="panel"><h3>Tarefas desta semana</h3><ul id="d-tasks"></ul></div>
+<div class="panel"><h3>Últimos erros anotados</h3><ul id="d-last"></ul></div>
+</div>
+</section>
+<section>
+<h2>Abrir uma tela</h2>
+<div class="tiles">
+<a class="tile" href="#cronograma" data-go="cronograma"><b>Cronograma semanal</b><span>As 16 semanas, mais a das leis e as extras, com as tarefas para marcar.</span></a>
+<a class="tile" href="#caderno-de-erros" data-go="caderno-de-erros"><b>Caderno de erros</b><span>Anote o que errou, o motivo e a regra certa. Filtre e revise.</span></a>
+<a class="tile" href="#mapa-mental" data-go="mapa-mental"><b>Mapa mental</b><span>Monte e edite mapas para fixar cada matéria.</span></a>
+<a class="tile" href="#cadernos" data-go="cadernos"><b>Cadernos de questões</b><span>Seus 7 cadernos do Mapa da Prova e em que semana usar cada um.</span></a>
+<a class="tile" href="#analise" data-go="analise"><b>Análise do curso</b><span>O que o curso cobre, reforço de Português e as leis do ES.</span></a>
+</div>
+</section>
 
 <section class="stats" aria-label="Situação atual">
 <div class="stat"><b>15</b><span>módulos no curso, com cerca de 115 tópicos</span></div>
@@ -133,7 +187,9 @@ footer{color:var(--muted);font-size:13px}
 <p><b>Edital:</b> ainda não saiu. A lei de carreira chama o cargo de <b>Assistente de Perícia</b>, então confira o nome quando publicarem. Só vale o edital oficial.</p>
 <p><b>Plano do site:</b> a aba "Plano de estudos" já tem 16 semanas de 2 horas por dia, e este cronograma segue a mesma ordem. O que mudei: Português reforçado, a semana 1 ajustada ao que você já fez e as matérias que ficaram de fora estão nas semanas extras.</p>
 </section>
+</div>
 
+<div class="view" id="v-analise" hidden>
 <section>
 <h2>O que o curso tem e o que o plano cobre</h2>
 <p class="sub">Li os tópicos dos 15 módulos. Não coletei a duração de cada aula, só a lista de tópicos.</p>
@@ -197,7 +253,9 @@ footer{color:var(--muted);font-size:13px}
 <tr><td>14 a 16</td><td>Revisão de interpretação e revisão geral</td></tr>
 </tbody></table></div>
 </section>
+</div>
 
+<div class="view" id="v-cronograma" hidden>
 <section>
 <h2>Seu avanço</h2>
 <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="pbar"><i id="pfill"></i></div>
@@ -224,7 +282,9 @@ footer{color:var(--muted);font-size:13px}
 <p class="sub">Só avance de matéria quando o caderno passar de 70%. Abaixo disso, reveja o tópico em que mais errou.</p>
 </aside>
 </div>
+</div>
 
+<div class="view" id="v-mapa" hidden>
 <section id="mapa-mental">
 <h2>Mapa mental</h2>
 <p class="sub">Escolha um mapa, clique em um ramo e use os botões para acrescentar o que você quer fixar. Os mapas já trazem a estrutura do curso e do Estatuto. O conteúdo de cada ramo é seu. Tudo fica salvo neste navegador.</p>
@@ -245,7 +305,9 @@ footer{color:var(--muted);font-size:13px}
 </div>
 <div class="mmwrap" id="mmwrap" tabindex="0" aria-label="Mapa mental"></div>
 </section>
+</div>
 
+<div class="view" id="v-erros" hidden>
 <section id="caderno-de-erros">
 <h2>Caderno de erros</h2>
 <p class="sub">Anote cada questão errada com o motivo e a regra certa. Releia as que ainda não revisou e marque "Revisei" quando conseguir explicar sozinho. Tudo fica salvo neste navegador.</p>
@@ -265,7 +327,9 @@ footer{color:var(--muted);font-size:13px}
 </div>
 <div class="erlist" id="erlist"></div>
 </section>
+</div>
 
+<div class="view" id="v-cadernos" hidden>
 <section id="cadernos">
 <h2>Seus cadernos de questões</h2>
 <div class="tbl"><table>
@@ -281,6 +345,7 @@ footer{color:var(--muted);font-size:13px}
 </tbody></table></div>
 <p class="sub">Dados lidos do Mapa da Prova. A prova de 2019 mostra 99 de 100 resolvidas, então o diagnóstico da semana 1 já está feito. Falta corrigir e montar o caderno de erros.</p>
 </section>
+</div>
 
 <footer>Fontes: o curso e o plano de estudos da Nova Concursos, os cadernos do Mapa da Prova e notícias sobre o concurso da Polícia Científica do ES. Só vale o edital oficial publicado no Diário Oficial.</footer>
 </div>
@@ -446,12 +511,6 @@ fillSel();draw();
 </script>
 <script>
 (function(){
-document.querySelectorAll(".nav a").forEach(function(a){
-  a.addEventListener("click",function(e){
-    e.preventDefault();var id=a.getAttribute("data-go"),el=document.getElementById(id);
-    if(el)el.scrollIntoView({behavior:"smooth",block:"start"});
-  });
-});
 var EK="plano-pcies-erros-v1",list=[];
 try{list=JSON.parse(localStorage.getItem(EK)||"[]")}catch(e){list=[]}
 if(!Array.isArray(list))list=[];
@@ -501,3 +560,46 @@ $("erform").addEventListener("submit",function(e){
 render();
 })();
 </script>
+<script>
+(function(){
+var VIEWS={"inicio":"v-inicio","cronograma":"v-cronograma","caderno-de-erros":"v-erros","mapa-mental":"v-mapa","cadernos":"v-cadernos","analise":"v-analise"};
+function $(id){return document.getElementById(id)}
+function readLS(k,def){try{var v=JSON.parse(localStorage.getItem(k));return v==null?def:v}catch(e){return def}}
+function li(pillTxt,txt,done){var l=document.createElement("li");var p=document.createElement("span");p.className="pill"+(done?" done":"");p.textContent=pillTxt;var s=document.createElement("span");s.textContent=txt;l.appendChild(p);l.appendChild(s);return l}
+function renderDash(){
+  var tot=16*T.length,done=0,i,j;
+  for(i=0;i<16;i++)for(j=0;j<T.length;j++)if(state[i+"-"+j])done++;
+  var pct=Math.round(done*100/tot);
+  $("d-prog").textContent=pct+"%";$("d-prog-sub").textContent=done+" de "+tot+" tarefas das semanas 1 a 16";$("d-fill").style.width=pct+"%";
+  var wk=firstOpen();if(wk>=W.length)wk=W.length-1;
+  $("d-week").textContent="Semana "+(wk+1);$("d-week-sub").textContent=W[wk][0];
+  var ul=$("d-tasks");ul.innerHTML="";
+  T.forEach(function(t,j){var ok=!!state[wk+"-"+j];ul.appendChild(li(ok?"Feito":"Falta",t,ok))});
+  var er=readLS("plano-pcies-erros-v1",[]);if(!Array.isArray(er))er=[];
+  var pend=er.filter(function(x){return !x.ok}).length;
+  $("d-err").textContent=pend;$("d-err-sub").textContent=er.length?er.length+" anotados, "+(er.length-pend)+" revisados":"Nenhum erro anotado ainda";
+  var mp=readLS("plano-pcies-mapas-v1",null);$("d-maps").textContent=mp&&typeof mp==="object"?Object.keys(mp).length:3;
+  var lu=$("d-last");lu.innerHTML="";
+  if(!er.length){var e0=document.createElement("li");e0.textContent="Quando você anotar um erro, ele aparece aqui.";lu.appendChild(e0)}
+  er.slice(-3).reverse().forEach(function(x){lu.appendChild(li(x.m||"Erro",(x.tp||"Sem tópico")+(x.mo?" ("+x.mo+")":""),x.ok))});
+}
+function show(name){
+  if(!VIEWS[name])name="inicio";
+  Object.keys(VIEWS).forEach(function(k){$(VIEWS[k]).hidden=(k!==name)});
+  document.querySelectorAll(".nav a").forEach(function(a){a.classList.toggle("on",a.getAttribute("data-go")===name)});
+  if(name==="inicio")renderDash();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("[data-go]").forEach(function(a){
+  a.addEventListener("click",function(e){
+    e.preventDefault();var n=a.getAttribute("data-go");
+    if(location.hash.slice(1)===n){show(n)}else{location.hash="#"+n}
+  });
+});
+window.addEventListener("hashchange",function(){show(location.hash.slice(1))});
+show(location.hash.slice(1));
+})();
+</script>
+
+</body>
+</html>
