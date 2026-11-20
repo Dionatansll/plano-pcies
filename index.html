@@ -1,0 +1,272 @@
+<title>Plano PCIES Assistente de Perícia</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: cabeçalho, análise do curso, reforço de Português, cronograma semanal ao lado da rotina, cadernos. Paleta de laboratório: ardósia, verde-água e âmbar de alerta. */
+:root{--bg:#f3f6f6;--surface:#ffffff;--fg:#14262b;--muted:#5b6f74;--line:#d5e0e1;--accent:#0f766e;--accent-soft:#d7efec;--warn:#b45309;--warn-soft:#fdeed6;--ok:#15803d;--bad:#b91c1c;--display:"Space Grotesk","Segoe UI",sans-serif;--body:"Inter","Segoe UI",sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a1d;--surface:#15262a;--fg:#e4eeee;--muted:#93a9ad;--line:#27403f;--accent:#4fd1c0;--accent-soft:#163a38;--warn:#f0a53a;--warn-soft:#3a2c12;--ok:#4ade80;--bad:#f87171;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1a1d;--surface:#15262a;--fg:#e4eeee;--muted:#93a9ad;--line:#27403f;--accent:#4fd1c0;--accent-soft:#163a38;--warn:#f0a53a;--warn-soft:#3a2c12;--ok:#4ade80;--bad:#f87171;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;padding-block:24px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:30px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(26px,5vw,38px);line-height:1.1}
+h2{font-size:20px}
+h3{font-size:16px}
+.sub{color:var(--muted);margin:8px 0 0;max-width:68ch}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+a.btn{display:inline-block;padding:9px 14px;border-radius:6px;background:var(--accent);color:var(--bg);font-weight:600;text-decoration:none}
+a.btn.alt{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.stat b{display:block;font-family:var(--display);font-size:24px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+.note{background:var(--warn-soft);border-left:3px solid var(--warn);padding:12px 14px;border-radius:0 6px 6px 0;min-width:0}
+.note p{margin:0}
+.note p+p{margin-top:6px}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.cols{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:24px;align-items:start}
+@media(max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}}
+.weeks{display:flex;flex-direction:column;gap:10px}
+details.week{background:var(--surface);border:1px solid var(--line);border-radius:8px}
+details.week.extra{border-style:dashed}
+details.week summary{cursor:pointer;padding:12px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;list-style:none}
+details.week summary::-webkit-details-marker{display:none}
+.wk{font-family:var(--display);font-weight:700;color:var(--accent);min-width:70px}
+.wt{font-weight:600;flex:1;min-width:140px}
+.pill{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-variant-numeric:tabular-nums}
+.pill.done{background:var(--accent);color:var(--bg)}
+.body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line)}
+.body p{margin:8px 0 0;color:var(--muted);font-size:14px}
+.body p b{color:var(--fg)}
+label.task{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+label.task input{margin-top:4px;accent-color:var(--accent);width:16px;height:16px;flex:none}
+.side{display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}
+.side ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.tbl{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.n{font-variant-numeric:tabular-nums}
+.hi{color:var(--bad);font-weight:600}
+.st{font-size:12px;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.st.ok{background:var(--accent-soft);color:var(--accent)}
+.st.mid{background:var(--warn-soft);color:var(--warn)}
+.st.no{background:var(--line);color:var(--fg)}
+.pt{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
+.pt div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.pt b{display:block}
+.pt span{color:var(--muted);font-size:14px}
+footer{color:var(--muted);font-size:13px}
+</style>
+
+<div class="wrap">
+<header>
+<h1>Plano PCIES Assistente de Perícia</h1>
+<p class="sub">Análise completa do curso Perícia Oficial-AL, do plano de estudos que já está no seu site e dos seus 7 cadernos do Mapa da Prova, com reforço em Português. Marque as tarefas e o progresso fica salvo neste navegador.</p>
+<div class="btns">
+<a class="btn" href="https://aluno.novaconcursos.com.br/#/curso-detalhes/18984" target="_blank" rel="noopener">Abrir o curso</a>
+<a class="btn alt" href="https://www.mapadaprova.com.br/area-estudante/cadernos" target="_blank" rel="noopener">Abrir meus cadernos</a>
+</div>
+</header>
+
+<section class="stats" aria-label="Situação atual">
+<div class="stat"><b>15</b><span>módulos no curso, com cerca de 115 tópicos</span></div>
+<div class="stat"><b>1%</b><span>do curso concluído</span></div>
+<div class="stat"><b>78%</b><span>do tópico de Interpretação de Textos</span></div>
+<div class="stat"><b>54%</b><span>de acerto em Português (28 questões)</span></div>
+<div class="stat"><b>64%</b><span>de acerto em Criminalística (58 questões)</span></div>
+<div class="stat"><b>25%</b><span>na prova PC-ES 2019 (100 questões)</span></div>
+</section>
+
+<section class="note">
+<p><b>Edital:</b> ainda não saiu. A lei de carreira chama o cargo de <b>Assistente de Perícia</b>, então confira o nome quando publicarem. Só vale o edital oficial.</p>
+<p><b>Plano do site:</b> a aba "Plano de estudos" já tem 16 semanas de 2 horas por dia, e este cronograma segue a mesma ordem. O que mudei: Português reforçado, a semana 1 ajustada ao que você já fez e as matérias que ficaram de fora estão nas semanas extras.</p>
+</section>
+
+<section>
+<h2>O que o curso tem e o que o plano cobre</h2>
+<p class="sub">Li os tópicos dos 15 módulos. Não coletei a duração de cada aula, só a lista de tópicos.</p>
+<div class="tbl"><table>
+<thead><tr><th>Módulo</th><th>Tópicos</th><th>No plano de 16 semanas</th><th>Falta</th></tr></thead>
+<tbody>
+<tr><td>Língua Portuguesa</td><td class="n">11</td><td><span class="st ok">Completo</span> Semanas 1 a 16</td><td>Nada</td></tr>
+<tr><td>Criminalística</td><td class="n">10</td><td><span class="st ok">Completo</span> Semanas 1 a 4</td><td>4 tópicos apontam para Medicina Legal</td></tr>
+<tr><td>Medicina Legal</td><td class="n">5</td><td><span class="st ok">Completo</span> Semanas 5 a 7</td><td>Nada</td></tr>
+<tr><td>Direito Processual Penal</td><td class="n">7</td><td><span class="st mid">Parcial</span> Semanas 9 e 10</td><td>Habeas Corpus, crimes de responsabilidade de funcionários, disposições constitucionais</td></tr>
+<tr><td>Direito Penal (Geral e Especial)</td><td class="n">12</td><td><span class="st mid">Parcial</span> Semanas 11 e 12</td><td>Periclitação, rixa, honra, liberdade individual, patrimônio</td></tr>
+<tr><td>Direito Administrativo</td><td class="n">9</td><td><span class="st mid">Parcial</span> Semana 13</td><td>Lei 8.112, licitação, controle, responsabilidade civil, regime jurídico</td></tr>
+<tr><td>Direito Constitucional</td><td class="n">13</td><td><span class="st mid">Parcial</span> Semana 14</td><td>11 tópicos, entre eles princípios, direitos sociais, poderes e funções essenciais</td></tr>
+<tr><td>Raciocínio Lógico</td><td class="n">7</td><td><span class="st no">Fora do plano</span></td><td>Semana extra 18</td></tr>
+<tr><td>Noções de Informática</td><td class="n">15</td><td><span class="st no">Fora do plano</span></td><td>Semana extra 19</td></tr>
+<tr><td>Legislação Especial</td><td class="n">7</td><td><span class="st no">Fora do plano</span></td><td>Semana extra 20</td></tr>
+<tr><td>Arquivologia</td><td class="n">10</td><td><span class="st no">Fora do plano</span></td><td>Semana extra 20</td></tr>
+<tr><td>Química, Física, Anatomia, Biossegurança</td><td class="n">6</td><td><span class="st mid">Parcial</span> Anatomia na semana 7</td><td>Semana extra 21</td></tr>
+<tr><td>Fotografia</td><td class="n">1</td><td><span class="st no">Fora do plano</span></td><td>Semana extra 21</td></tr>
+<tr><td>Atualidades</td><td class="n">2</td><td><span class="st no">Fora do plano</span></td><td>Semana extra 21</td></tr>
+</tbody></table></div>
+<p class="sub">O Estatuto da PCIES (LC 1.136/2026) está no plano das semanas 5 a 7, 13 e 15, mas não existe no curso. A semana 17 é inteira dedicada a ele.</p>
+</section>
+
+<section>
+<h2>Leis do ES: onde estudar</h2>
+<p class="sub">Procurei na Nova Concursos e as leis do ES não estão lá. O curso de Alagoas tem só leis federais em Legislação Especial. O curso de Polícia Científica de SP tem leis paulistas. A seção "Apostilas e livros" está vazia na sua conta.</p>
+<div class="pt">
+<div><b>Estatuto dos Policiais Científicos</b><span>LC 1.136/2026, com 164 artigos em 9 títulos. Regime disciplinar (arts. 80 a 164) é a maior parte.</span></div>
+<div><b>Quadro e carreiras</b><span>LC 1.137/2026, com 45 artigos. Carreiras, subsídio, progressão e promoção.</span></div>
+<div><b>Onde ler</b><span>Diário Oficial do ES, edição 26.640 de 6/1/2026, e o site da Polícia Científica (pci.es.gov.br), na área Legislação. Antes de estudar, confira se houve alteração depois dessa data.</span></div>
+<div><b>O que serve nos seus cursos</b><span>Do curso de SP: Lei 9.434/97 (já no plano), Lei 12.527/11 (acesso à informação), Direitos Humanos e Segurança Pública. Do de AL: Lei 9.784/99 e Improbidade.</span></div>
+</div>
+<p class="sub">O Estatuto manda aplicar, de forma subsidiária, o Regime Jurídico Único do ES (LC 46/1994). Só estude essa lei se o edital pedir.</p>
+</section>
+
+<section>
+<h2>Reforço de Português</h2>
+<p class="sub">Você ainda tem poucas questões resolvidas (28 de 499), então os 54% dizem pouco por enquanto. Português é a matéria em que a prática mais muda o resultado, e o caderno PCIES 3 tem questões de sobra.</p>
+<div class="pt">
+<div><b>10 minutos por dia</b><span>Resolva 10 questões do PCIES 3 antes de começar o estudo do dia, na ordem do tópico da semana. Em 7 semanas você termina as 499.</span></div>
+<div><b>Caderno de erros</b><span>Anote só o motivo do erro: "confundi regência", "li rápido", "não sabia a regra". Na semana 8 conte qual motivo mais aparece.</span></div>
+<div><b>Regra, não decoreba</b><span>Escreva a regra em uma linha e um exemplo seu. Releia essa folha toda semana.</span></div>
+<div><b>Sábado de Português</b><span>Troque um terço do bloco misto por 20 questões de Português dos tópicos já vistos.</span></div>
+</div>
+<div class="tbl"><table>
+<thead><tr><th>Semana</th><th>Tópico do curso</th></tr></thead>
+<tbody>
+<tr><td>1 e 2</td><td>Compreensão e Interpretação de Textos (você já está em 78%)</td></tr>
+<tr><td>3</td><td>Domínio da Ortografia Oficial</td></tr>
+<tr><td>4</td><td>Morfologia e Emprego das Classes de Palavras</td></tr>
+<tr><td>5</td><td>Concordância Verbal e Nominal</td></tr>
+<tr><td>6</td><td>Regência Verbal e Nominal</td></tr>
+<tr><td>7</td><td>Emprego do Sinal Indicativo de Crase</td></tr>
+<tr><td>8</td><td>Revisão leve</td></tr>
+<tr><td>9</td><td>Emprego dos Sinais de Pontuação</td></tr>
+<tr><td>10</td><td>Relações de Coordenação e Subordinação</td></tr>
+<tr><td>11</td><td>Domínio dos Mecanismos de Coesão Textual</td></tr>
+<tr><td>12</td><td>Colocação dos Pronomes Átonos</td></tr>
+<tr><td>13</td><td>Reescrita de Frases e Parágrafos do Texto</td></tr>
+<tr><td>14 a 16</td><td>Revisão de interpretação e revisão geral</td></tr>
+</tbody></table></div>
+</section>
+
+<section>
+<h2>Seu avanço</h2>
+<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="pbar"><i id="pfill"></i></div>
+<p class="sub" id="ptext"></p>
+</section>
+
+<div class="cols">
+<section>
+<h2>Cronograma semanal</h2>
+<p class="sub">As semanas 1 a 16 seguem o plano do site. A semana 17 é nova e reúne as leis da PCIES. As semanas 18 a 21 são extras, para o caso de a prova estar longe ou o edital pedir essas matérias.</p>
+<div class="weeks" id="weeks" style="margin-top:12px"></div>
+</section>
+
+<aside class="side">
+<h3>Rotina de cada dia (2 horas)</h3>
+<ol>
+<li><b>10 min:</b> 10 questões de Português do PCIES 3.</li>
+<li><b>60 min:</b> aula ou lei seca do dia, com anotação curta.</li>
+<li><b>40 min:</b> questões do caderno da matéria.</li>
+<li><b>10 min:</b> anotar o motivo de cada erro.</li>
+</ol>
+<p class="sub">Sábado: bloco de questões misturadas. Domingo: refazer só as erradas da semana.</p>
+<h3>Meta de acerto</h3>
+<p class="sub">Só avance de matéria quando o caderno passar de 70%. Abaixo disso, reveja o tópico em que mais errou.</p>
+</aside>
+</div>
+
+<section>
+<h2>Seus cadernos de questões</h2>
+<div class="tbl"><table>
+<thead><tr><th>Caderno</th><th>Resolvidas</th><th>Acerto</th><th>Usar nas semanas</th></tr></thead>
+<tbody>
+<tr><td>PCIES 1 – Prova 2019 (AOCP)</td><td class="n">99 de 100</td><td class="n hi">25%</td><td>1 (corrigir) e 15 (refazer)</td></tr>
+<tr><td>PCIES 2 – Todas as provas (2006, 2011, 2019)</td><td class="n">0 de 340</td><td class="n">–</td><td>15 e 16</td></tr>
+<tr><td>PCIES 3 – Português</td><td class="n">28 de 499</td><td class="n">54%</td><td>1 a 8, 10 min por dia</td></tr>
+<tr><td>PCIES 4 – Criminalística</td><td class="n">58 de 134</td><td class="n">64%</td><td>1 a 4</td></tr>
+<tr><td>PCIES 5 – Medicina Legal</td><td class="n">0 de 384</td><td class="n">–</td><td>5 a 8</td></tr>
+<tr><td>PCIES 6 – Penal e Processual Penal</td><td class="n">0 de 261</td><td class="n">–</td><td>9 a 12</td></tr>
+<tr><td>PCIES 7 – Administrativo e Constitucional</td><td class="n">0 de 217</td><td class="n">–</td><td>13 e 14</td></tr>
+</tbody></table></div>
+<p class="sub">Dados lidos do Mapa da Prova. A prova de 2019 mostra 99 de 100 resolvidas, então o diagnóstico da semana 1 já está feito. Falta corrigir e montar o caderno de erros.</p>
+</section>
+
+<footer>Fontes: o curso e o plano de estudos da Nova Concursos, os cadernos do Mapa da Prova e notícias sobre o concurso da Polícia Científica do ES. Só vale o edital oficial publicado no Diário Oficial.</footer>
+</div>
+
+<script>
+/* [título, tópico de Português, matéria da semana, lei seca, caderno, extra?] */
+var W=[
+["Diagnóstico e erros","Interpretação de Textos","Criminalística: Corpo de Delito","Corrigir o PCIES 1 (já resolvido) e montar o caderno de erros","PCIES 1, 3 e 4"],
+["Criminalística 1","Compreensão e Interpretação de Textos","Criminalística: Noções, Doutrina e Áreas de Atuação","CPP arts. 158 a 184","PCIES 4"],
+["Criminalística 2","Ortografia Oficial","Criminalística: Prova e Corpo de Delito, Cadeia de Custódia","CPP arts. 158-A a 158-F (cadeia de custódia)","PCIES 4"],
+["Criminalística 3","Morfologia e Classes de Palavras","Criminalística: Locais de Crime, Vestígios e Documentos","Revisão do caderno de erros de Criminalística","PCIES 4"],
+["Medicina Legal 1","Concordância Verbal e Nominal","Medicina Legal: Conceito, Documentos, Identidade e Identificação","Estatuto da PCIES (LC 1.136/2026), arts. 1 a 31 (Títulos I e II)","PCIES 5"],
+["Medicina Legal 2","Regência Verbal e Nominal","Medicina Legal: Traumatologia Forense","Estatuto da PCIES, arts. 32 a 79 (Títulos III a VI)","PCIES 5"],
+["Medicina Legal 3","Crase","Medicina Legal: Tanatologia, com Anatomia do curso SP","Estatuto da PCIES, arts. 80 a 164 (Títulos VII a IX, regime disciplinar)","PCIES 5"],
+["Revisão (ritmo leve)","Revisão de Português","Revisão de Criminalística e Medicina Legal","Caderno de erros das semanas anteriores","PCIES 3, 4 e 5"],
+["Processual Penal 1","Sinais de Pontuação","Processual Penal: Disposições Preliminares e Inquérito Policial","CPP arts. 4º a 23 (inquérito)","PCIES 6"],
+["Processual Penal 2","Coordenação e Subordinação","Processual Penal: Ação Penal, Prisão e Liberdade Provisória","CPP arts. 282 a 350 (prisão)","PCIES 6"],
+["Penal 1","Mecanismos de Coesão Textual","Penal: Parte Geral, Crimes contra a Vida e Lesões Corporais","CP arts. 121 a 129","PCIES 6"],
+["Penal 2","Pronomes Átonos","Penal: Crimes contra a Administração Pública e Respeito aos Mortos (curso SP)","CP arts. 209 a 212 e 312 a 327","PCIES 6"],
+["Administrativo","Reescrita de Frases e Parágrafos","Administrativo: Organização, Ato, Agentes Públicos e Poderes","Estatuto da PCIES, revisão","PCIES 7"],
+["Constitucional","Revisão de Interpretação de Textos","Constitucional: art. 5º e Administração Pública (arts. 37 a 41)","CF art. 5º, arts. 37 a 41 e 144","PCIES 7"],
+["Estatuto e simulado","Revisão geral de Português","Estatuto da PCIES e Lei 9.434/97 (curso SP)","Lei 9.434/97","PCIES 1 e 2"],
+["Revisão final","Revisão geral de Português","Revisão dos assuntos com menor taxa de acerto","Caderno de erros completo","PCIES 2 e erros de todos os cadernos"],
+["Leis da PCIES (ES)","Português: 10 questões por dia","Estatuto dos Policiais Científicos (LC 1.136/2026) e Lei do Quadro e Carreiras (LC 1.137/2026)","Texto oficial no Diário Oficial do ES de 6/1/2026","Monte você mesmo: lei nova, sem questões de provas antigas",1,[
+ "Dia 1: Estatuto, arts. 1 a 31. Objetivos, princípios, cargos, provimento, concurso, posse, estágio probatório, estabilidade e vacância.",
+ "Dia 2: Estatuto, arts. 32 a 79. Garantias, remuneração, jornada, férias, licenças, tempo de serviço, previdência, petição e prescrição.",
+ "Dia 3: Estatuto, arts. 80 a 100. Deveres, transgressões, responsabilidades e penas disciplinares.",
+ "Dia 4: Estatuto, arts. 101 a 164. Procedimento preliminar, termo de ajustamento de conduta, comissão processante, processo disciplinar, revisão e disposições finais.",
+ "Dia 5: LC 1.137/2026, arts. 1 a 45. Carreiras, jornada, avaliação de desempenho, subsídio, progressão e promoção.",
+ "Sábado: faça um resumo de uma página por título e escreva 20 perguntas suas sobre a lei.",
+ "Domingo: responda as 20 perguntas sem olhar o texto e releia os artigos que errou."]],
+["Extra: Raciocínio Lógico","Português: 10 questões por dia","Raciocínio Lógico: estruturas lógicas, argumentação, lógica sentencial, contagem e probabilidade, conjuntos","Sem lei seca nesta semana","Filtrar Raciocínio nos cadernos 1 e 2",1],
+["Extra: Informática","Português: 10 questões por dia","Informática: Windows, Linux, Office, LibreOffice, navegação, e-mail, nuvem e segurança","Sem lei seca nesta semana","Filtrar Informática nos cadernos 1 e 2",1],
+["Extra: Legislação e Arquivologia","Português: 10 questões por dia","Legislação Especial (identidade, Improbidade, Lei 9.784/99) e Arquivologia","Leis 7.116/83, 5.553/68 e 9.454/97","Filtrar por assunto nos cadernos 1 e 2",1],
+["Extra: Ciências e Atualidades","Português: 10 questões por dia","Química, Física, Anatomia, Biossegurança, Fotografia e Atualidades","Sem lei seca nesta semana","Filtrar por assunto nos cadernos 1 e 2",1]
+];
+var KEY="plano-pcies-v2",state={};
+try{state=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){state={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+var T=["Aula ou leitura da matéria","Questões do caderno e 10 de Português por dia","Lei seca e revisão dos erros"];
+var root=document.getElementById("weeks");
+function firstOpen(){for(var i=0;i<W.length;i++){for(var j=0;j<T.length;j++){if(!state[i+"-"+j])return i}}return 0}
+function render(){
+  var total=16*T.length,done=0;
+  root.innerHTML="";
+  W.forEach(function(w,i){
+    var d=document.createElement("details");d.className="week"+(w[5]?" extra":"");
+    var c=0;T.forEach(function(_,j){if(state[i+"-"+j])c++});
+    if(!w[5])done+=c;
+    var s=document.createElement("summary");
+    s.innerHTML='<span class="wk">Semana '+(i+1)+'</span><span class="wt"></span><span class="pill'+(c===3?' done':'')+'">'+c+'/3</span>';
+    s.querySelector(".wt").textContent=w[0];
+    d.appendChild(s);
+    var b=document.createElement("div");b.className="body";
+    [["Português",w[1]],["Matéria",w[2]],["Lei seca",w[3]],["Caderno",w[4]]].forEach(function(r){
+      var p=document.createElement("p");var bb=document.createElement("b");bb.textContent=r[0]+": ";
+      p.appendChild(bb);p.appendChild(document.createTextNode(r[1]));b.appendChild(p);
+    });
+    if(w[6]){var ul=document.createElement("ul");ul.style.cssText="margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:4px";
+      w[6].forEach(function(x){var li=document.createElement("li");li.textContent=x;ul.appendChild(li)});b.appendChild(ul)}
+    T.forEach(function(t,j){
+      var l=document.createElement("label");l.className="task";
+      var cb=document.createElement("input");cb.type="checkbox";cb.id="t-"+i+"-"+j;cb.checked=!!state[i+"-"+j];
+      cb.addEventListener("change",function(){state[i+"-"+j]=cb.checked;save();var open=d.open;render();if(open)root.children[i].open=true});
+      var sp=document.createElement("span");sp.textContent=t;
+      l.appendChild(cb);l.appendChild(sp);b.appendChild(l);
+    });
+    d.appendChild(b);
+    if(i===firstOpen())d.open=true;
+    root.appendChild(d);
+  });
+  var pct=Math.round(done*100/total);
+  document.getElementById("pfill").style.width=pct+"%";
+  document.getElementById("pbar").setAttribute("aria-valuenow",pct);
+  document.getElementById("ptext").textContent=done+" de "+total+" tarefas das semanas 1 a 16 ("+pct+"%).";
+}
+render();
+</script>
