@@ -561,6 +561,41 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 var T=["Aula ou leitura da matéria","Questões do caderno e 10 de Português por dia","Lei seca e revisão dos erros"];
 function taskLabel(i,j){return j===1?"Fazer as 30 questões de cada matéria da semana":T[j]}
 var root=document.getElementById("weeks");
+/* Plano por dia: monta Segunda a Domingo de cada semana a partir do conteúdo, das questões e dos cadernos do TEC */
+var DAYS=["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
+function tecTxt(i,k){var qt=QT[i]&&QT[i][k];if(qt&&qt[0]&&TEC[qt[0]])return " No TEC: "+TEC[qt[0]].n+(qt[1]?" ("+qt[1]+")":"")+".";return ""}
+function dayTexts(i,w){
+  if(w[6])return w[6].map(function(x){return x.replace(/^[^:]*:\s*/,"")});
+  var q=Q[i]||[];
+  function nm(k){var b=q[k];if(!b)return null;var qq=(b===PT&&PTX[i])?PTX[i]:b;return qq[0]}
+  var pt=(nm(0)||"Português").replace(/^Português:\s*/,"");
+  var m1=nm(1),m2=nm(2);
+  return [
+    "Português, "+pt+": aula na Nova (50 min), depois 15 das 30 questões (60 min) e anote os erros (10 min)."+tecTxt(i,0),
+    "Matéria da semana, "+w[2]+": aula (80 min), resumo ou mapa mental (30 min) e revisão rápida (10 min).",
+    "Português, "+pt+": as outras 15 questões (50 min), reveja a regra de cada erro (40 min) e fixe no mapa mental (30 min).",
+    m1?"30 questões de "+m1+" (60 min), corrija cada erro (40 min) e anote no caderno de erros (20 min)."+tecTxt(i,1):"Revisão da matéria da semana e resumo no mapa mental (2 h).",
+    "Lei seca e erros: "+w[3]+" (60 min)"+(m2?" e 30 questões de "+m2+" (50 min)."+tecTxt(i,2):" e revisão dos erros da semana (50 min)."),
+    "Bloco misto: 40 questões misturadas das matérias da semana, mais as que você errou (2 h).",
+    "Dia leve: refaça só as erradas da semana, feche o caderno de erros e olhe a semana seguinte (1 h)."
+  ];
+}
+function dayBlock(i,w){
+  var wrap=document.createElement("div");wrap.style.marginTop="8px";
+  var texts=dayTexts(i,w),done=0;
+  texts.forEach(function(_,k){if(state[i+"-d"+k])done++});
+  var h=document.createElement("p");var hb=document.createElement("b");
+  hb.textContent="Plano por dia (cerca de 2 horas por dia): "+done+" de 7 dias feitos";h.appendChild(hb);wrap.appendChild(h);
+  texts.forEach(function(t,k){
+    var l=document.createElement("label");l.className="task";l.style.marginTop="6px";
+    var cb=document.createElement("input");cb.type="checkbox";cb.id="dia-"+i+"-"+k;cb.checked=!!state[i+"-d"+k];
+    cb.addEventListener("change",function(){state[i+"-d"+k]=cb.checked;save();var det=root.children[i];var open=det&&det.open;render();if(open)root.children[i].open=true});
+    var sp=document.createElement("span");var bn=document.createElement("b");bn.textContent=DAYS[k]+": ";
+    sp.appendChild(bn);sp.appendChild(document.createTextNode(t));
+    l.appendChild(cb);l.appendChild(sp);wrap.appendChild(l);
+  });
+  return wrap;
+}
 function firstOpen(){for(var i=0;i<W.length;i++){for(var j=0;j<T.length;j++){if(!state[i+"-"+j])return i}}return 0}
 function render(){
   var total=16*T.length,done=0;
@@ -585,8 +620,7 @@ function render(){
       if(tk&&tk[0]&&TEC[tk[0]]){var tb=document.createElement("b");tb.textContent="TEC: ";li.appendChild(tb);var a=document.createElement("a");a.href=tecUrl(tk[0]);a.target="_blank";a.rel="noopener";a.textContent=TEC[tk[0]].n;a.style.color="var(--accent)";li.appendChild(a);li.appendChild(document.createTextNode(tk[1]?" ("+tk[1]+"). ":". "))}
       else{li.appendChild(document.createTextNode("TEC: ainda sem caderno para este item. "))}
       li.appendChild(document.createTextNode("Mapa da Prova: "+qq[1]+"."));ql.appendChild(li)});b.appendChild(ql)}
-    if(w[6]){var ul=document.createElement("ul");ul.style.cssText="margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:4px";
-      w[6].forEach(function(x){var li=document.createElement("li");li.textContent=x;ul.appendChild(li)});b.appendChild(ul)}
+    b.appendChild(dayBlock(i,w));
     T.forEach(function(t,j){
       var l=document.createElement("label");l.className="task";
       var cb=document.createElement("input");cb.type="checkbox";cb.id="t-"+i+"-"+j;cb.checked=!!state[i+"-"+j];
