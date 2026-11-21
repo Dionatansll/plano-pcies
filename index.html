@@ -141,7 +141,6 @@ button.qzopt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .erbtn:disabled{opacity:.5;cursor:default}
 footer{color:var(--muted);font-size:13px}
 </style>
-
 <style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}</style>
 </head>
 <body>
@@ -288,14 +287,13 @@ footer{color:var(--muted);font-size:13px}
 </section>
 
 <aside class="side">
-<h3>Rotina de cada dia (2 horas)</h3>
+<h3>Rotina de cada dia (cerca de 2 horas)</h3>
 <ol>
-<li><b>10 min:</b> 5 a 10 questões de interpretação de texto.</li>
-<li><b>60 min:</b> aula ou lei seca do dia, com anotação curta.</li>
-<li><b>40 min:</b> questões do caderno da matéria.</li>
-<li><b>10 min:</b> anotar o motivo de cada erro.</li>
+<li><b>45 a 60 min:</b> aula na Nova ou lei seca do dia, com anotação curta.</li>
+<li><b>60 min:</b> 30 questões, no caderno e na faixa que o plano do dia indica.</li>
+<li><b>10 a 20 min:</b> anotar o motivo de cada erro.</li>
 </ol>
-<p class="sub">Sábado: bloco de questões misturadas. Domingo: dia fixo de revisão do caderno de erros, com as erradas desta semana e das 2 anteriores.</p>
+<p class="sub">Segunda a sábado: 30 questões por dia. Sábado: bloco misto. Domingo: dia fixo de revisão do caderno de erros, com as erradas desta semana e das 2 anteriores.</p>
 <h3>Meta de acerto</h3>
 <p class="sub">Só avance de matéria quando o caderno passar de 70%. Abaixo disso, reveja o tópico em que mais errou.</p>
 </aside>
@@ -466,7 +464,7 @@ var W=[
 /* 30 questões por matéria em cada semana: [matéria, caderno] */
 var PT=["Português: tópico da semana","PCIES 3 – Português"];
 var Q=[
-[["Português: Interpretação de Textos","PCIES 3 – Português"],["Corpo de Delito (CPP arts. 158 a 184)","PCIES 6 – Penal e Processual Penal, assunto \"Do Exame de Corpo de Delito, da Cadeia de Custódia e das Perícias em Geral\" (39 questões, faça 30)"]],
+[PT,["Corpo de Delito (CPP arts. 158 a 184)","PCIES 6 – Penal e Processual Penal, assunto \"Do Exame de Corpo de Delito, da Cadeia de Custódia e das Perícias em Geral\" (39 questões, faça 30)"]],
 [PT,["Criminalística: Noções, Doutrina e Áreas de Atuação","PCIES 4 – Criminalística"],["Processual Penal: Da Prova (CPP arts. 155 a 250)","PCIES 6 – Penal e Processual Penal, assunto \"Da Prova\" (58 questões; use as 9 que sobraram de Corpo de Delito e as demais)"]],
 [PT,["Criminalística: Prova, Corpo de Delito e Cadeia de Custódia","PCIES 4 – Criminalística"],["Corpo de Delito e Cadeia de Custódia (CPP arts. 158-A a 158-F), refazendo as erradas","PCIES 6 – mesmo assunto da semana 1, mais o caderno de erros"]],
 [PT,["Criminalística: Locais de Crime, Vestígios e Documentos","PCIES 4 – Criminalística"]],
@@ -535,7 +533,7 @@ function tecUrl(k){return "https://www.tecconcursos.com.br/questoes/cadernos/"+T
 var QT=[
 [["g_pt","Índice, Morfologia: artigo, substantivo, adjetivo, numeral e pronomes"],["c01","questões 1 a 30"]],
 [["g_pt","Índice, Morfologia: verbo, advérbio, preposição e conjunção"],["c02","questões 1 a 30"],["c01","questões 31 a 60"]],
-[["g_pt","Índice, Sintaxe: funções sintáticas e orações"],["c02","questões 31 a 60"],["c01","refaça as erradas e faça as 61 a 90"]],
+[["g_pt","Índice, Sintaxe: funções sintáticas e orações"],["c02","questões 31 a 60"],["c01",""]],
 [["g_pt","Índice, Pontuação"],["c02","questões 61 a 90"]],
 [["g_pt","Índice, Concordância"],["c03","questões 1 a 30"],["",""]],
 [["g_pt","Índice, Regência e Sintaxe"],["c04","questões 1 a 30"],["",""]],
@@ -559,7 +557,7 @@ var KEY="plano-pcies-v2",state={};
 try{state=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){state={}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 var T=["Aula ou leitura da matéria","Questões do caderno e 10 de Português por dia","Lei seca e revisão dos erros"];
-function taskLabel(i,j){return j===1?"Fazer as 30 questões de cada matéria da semana":T[j]}
+function taskLabel(i,j){return j===1?"Fazer as 30 questões de cada dia, de segunda a sábado":T[j]}
 var root=document.getElementById("weeks");
 /* Plano por dia: monta Segunda a Domingo de cada semana a partir do conteúdo, das questões e dos cadernos do TEC */
 /* Onde achar cada conteúdo no curso da Nova (nomes exatos dos tópicos): [Língua Portuguesa > tópico, módulo e tópicos da matéria] */
@@ -589,34 +587,78 @@ var NV=[
 function nvText(i){var n=NV[i];if(!n)return"";return (n[0]?"Português: Língua Portuguesa > "+n[0]+". ":"")+(n[1]?"Matéria: "+n[1]+".":"")}
 var DAYS=["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
 function tecTxt(i,k){var qt=QT[i]&&QT[i][k];if(qt&&qt[0]&&TEC[qt[0]])return " No TEC: "+TEC[qt[0]].n+(qt[1]?" ("+qt[1]+")":"")+".";return ""}
+var QDM=null;
+function QDP(){if(!QDM)QDM=buildQD();return QDM}
+function QDKeys(i){var P=QDP()[i]||[],seen={},out=[];P.forEach(function(e){if(e&&e.k&&!seen[e.k]){seen[e.k]=1;out.push(e.k)}});return out}
+function buildQD(){
+  var ptr={},plan=[];
+  function take(key,hint,fixo){
+    if(!key||!TEC[key])return null;
+    if(/^g_/.test(key))return {k:key,t:"[["+key+"]]"+(hint?" ("+hint+")":"")+", começando pela primeira ainda não resolvida"};
+    if(fixo)return {k:key,t:"[["+key+"]] ("+hint+"), e complete 30 questões"};
+    var n=TEC[key].q,a=(ptr[key]||0)+1,b=a+29;
+    if(a>n)return {k:key,t:"[["+key+"]]: refaça as erradas e complete 30 questões (você já passou pelas "+n+" do caderno)"};
+    ptr[key]=Math.min(b,n);
+    if(b>n)return {k:key,t:"[["+key+"]]: questões "+a+" a "+n+" ("+(n-a+1)+" questões) e complete 30 com as erradas"};
+    return {k:key,t:"[["+key+"]]: questões "+a+" a "+b};
+  }
+  for(var i=0;i<W.length;i++){
+    var qt=QT[i]||[],t0=qt[0]||[],t1=qt[1]||[],t2=qt[2],k1=t1[0],k2=t2?t2[0]:undefined,d=[];
+    d.push(take("g_pt",t0[1]));
+    d.push(k1?take(k1,t1[1]):null);
+    d.push(take("g_pt","Índice, Interpretação de Textos"));
+    d.push(k1?take(k1,t1[1]):null);
+    if(t2){d.push(k2?take(k2,t2[1],/^refaça/.test(t2[1]||"")):{k:"",t:"as 12 questões do Estatuto na aba Questões do site e mais perguntas suas, feitas a partir dos artigos"})}
+    else d.push(k1?take(k1,t1[1]):null);
+    plan.push(d);
+  }
+  var OVR={
+    14:[0,"Mapa da Prova, caderno PCIES 2: 30 questões ainda não resolvidas",0,"Mapa da Prova, caderno PCIES 1 (prova PC-ES 2019): refaça 30 das erradas","Mapa da Prova, caderno PCIES 2: mais 30 questões não resolvidas"],
+    15:[0,"Mapa da Prova, caderno PCIES 2: 30 questões não resolvidas",0,"As 30 que você mais errou, entre todos os cadernos (TEC e Mapa da Prova)","Mapa da Prova, caderno PCIES 2: mais 30 questões não resolvidas"],
+    16:[0,"Aba Questões do site (Estatuto) e perguntas suas, feitas a partir dos artigos do dia",0,"Aba Questões do site (Estatuto) e perguntas suas, feitas a partir dos artigos do dia","Aba Questões do site (Estatuto) e perguntas suas, feitas a partir dos artigos do dia"],
+    19:[0,"Mapa da Prova (PCIES 1 e 2): 30 de Legislação Especial, filtrando o assunto",0,"Mapa da Prova (PCIES 1 e 2): 30 de Arquivologia, filtrando o assunto","Mapa da Prova (PCIES 1 e 2): as que sobraram desses assuntos ou as erradas"],
+    20:[0,"Mapa da Prova (PCIES 1 e 2): 30 de Química, Anatomia e Fotografia, filtrando o assunto",0,"Mapa da Prova (PCIES 1 e 2): 30 de Atualidades, filtrando o assunto","Mapa da Prova (PCIES 1 e 2): as que sobraram ou as erradas"]
+  };
+  Object.keys(OVR).forEach(function(i){OVR[i].forEach(function(t,k){if(t)plan[i][k]={k:"",t:t}})});
+  return plan;
+}
 function dayTexts(i,w){
-  if(w[6])return w[6].map(function(x){return x.replace(/^[^:]*:\s*/,"")});
-  var q=Q[i]||[];var nv=NV[i]||["",""];
-  function nm(k){var b=q[k];if(!b)return null;var qq=(b===PT&&PTX[i])?PTX[i]:b;return qq[0]}
+  var P=QDP()[i]||[];
+  function qs(k){return P[k]?P[k].t:null}
+  if(w[6])return w[6].map(function(x,k){var base=x.replace(/^[^:]*:\s*/,"");var q=(k<6)?qs(k):null;return q&&k!==5?base+" Além disso, 30 questões: "+q+".":base});
+  var q0=Q[i]||[];
+  function nm(k){var b=q0[k];if(!b)return null;var qq=(b===PT&&PTX[i])?PTX[i]:b;return qq[0]}
   var pt=(nm(0)||"Português").replace(/^Português:\s*/,"");
-  var m1=nm(1),m2=nm(2);
+  var nv=NV[i]||["",""];
   return [
-    "Português, "+pt+": "+(nv[0]?"aula na Nova, em Língua Portuguesa > "+nv[0]:"aula ou revisão na Nova")+" (50 min), depois 15 das 30 questões (60 min) e anote os erros (10 min)."+tecTxt(i,0),
-    "Matéria da semana, "+w[2]+": aula na Nova, em "+(nv[1]||"o módulo da matéria")+" (80 min), resumo ou mapa mental (30 min) e revisão rápida (10 min). Se você já concluiu esse tópico, use o tempo para revisar e resumir.",
-    "Português, "+pt+": as outras 15 questões (50 min), reveja a regra de cada erro (40 min) e fixe no mapa mental (30 min).",
-    m1?"30 questões de "+m1+" (60 min), corrija cada erro (40 min) e anote no caderno de erros (20 min)."+tecTxt(i,1):"Revisão da matéria da semana e resumo no mapa mental (2 h).",
-    "Lei seca e erros: "+w[3]+" (60 min)"+(m2?" e 30 questões de "+m2+" (50 min)."+tecTxt(i,2):" e revisão dos erros da semana (50 min)."),
-    "Bloco misto: 40 questões misturadas das matérias da semana, mais as que você errou (2 h).",
+    "Português, "+pt+": "+(nv[0]?"aula na Nova (Língua Portuguesa > "+nv[0]+")":"revisão do que você mais errou")+" por 45 min. Depois, 30 questões no TEC: "+(qs(0)||"")+" (65 min). Anote os erros (10 min).",
+    "Matéria da semana, "+w[2]+": "+(/^Sem aula/.test(nv[1]||"")?"estudo: "+nv[1].replace(/^Sem aula nova: /,""):"aula na Nova ("+(nv[1]||"módulo da matéria")+")")+" por 50 min. Depois, 30 questões: "+(qs(1)||"as da matéria, no caderno indicado no topo da semana")+" (60 min) e anote os erros (10 min).",
+    "30 questões de Interpretação de Textos no TEC: "+(qs(2)||"")+" (50 min). Reveja a regra de cada erro (40 min) e fixe no mapa mental (30 min).",
+    "30 questões da matéria da semana: "+(qs(3)||"as erradas da matéria")+" (60 min). Corrija cada erro (40 min) e resuma no mapa mental (20 min).",
+    (/^Sem lei seca/.test(w[3])?"Revisão dos erros da matéria (50 min). Depois,":"Lei seca e erros: "+w[3]+" (50 min). Depois,")+" 30 questões: "+(qs(4)||"as erradas da semana")+" (60 min) e anote os erros (10 min).",
+    "Bloco misto de 30 questões: 15 de Português ([[g_pt]], o mesmo tópico da semana, as próximas ainda não resolvidas) e 15 das erradas da matéria da semana. Corrija tudo (2 h).",
     "Revisão do caderno de erros (todo domingo): refaça as erradas desta semana e das 2 semanas anteriores, no TEC e na aba Caderno de erros do site. Reescreva a regra das que errar de novo e marque \"Revisei\" nas que já sabe explicar (1 h a 2 h). Depois, 10 min para olhar a semana seguinte."
   ];
+}
+function richText(span,t){
+  t.split(/(\[\[\w+\]\])/).forEach(function(part){
+    var m=part.match(/^\[\[(\w+)\]\]$/);
+    if(m&&TEC[m[1]]){var a=document.createElement("a");a.href=tecUrl(m[1]);a.target="_blank";a.rel="noopener";a.textContent=TEC[m[1]].n;a.style.color="var(--accent)";span.appendChild(a)}
+    else if(part)span.appendChild(document.createTextNode(part));
+  });
 }
 function dayBlock(i,w){
   var wrap=document.createElement("div");wrap.style.marginTop="8px";
   var texts=dayTexts(i,w),done=0;
   texts.forEach(function(_,k){if(state[i+"-d"+k])done++});
   var h=document.createElement("p");var hb=document.createElement("b");
-  hb.textContent="Plano por dia (cerca de 2 horas por dia): "+done+" de 7 dias feitos";h.appendChild(hb);wrap.appendChild(h);
+  hb.textContent="Plano por dia (cerca de 2 horas por dia, com 30 questões de segunda a sábado): "+done+" de 7 dias feitos";h.appendChild(hb);wrap.appendChild(h);
   texts.forEach(function(t,k){
     var l=document.createElement("label");l.className="task";l.style.marginTop="6px";
     var cb=document.createElement("input");cb.type="checkbox";cb.id="dia-"+i+"-"+k;cb.checked=!!state[i+"-d"+k];
     cb.addEventListener("change",function(){state[i+"-d"+k]=cb.checked;save();var det=root.children[i];var open=det&&det.open;render();if(open)root.children[i].open=true});
     var sp=document.createElement("span");var bn=document.createElement("b");bn.textContent=DAYS[k]+": ";
-    sp.appendChild(bn);sp.appendChild(document.createTextNode(t));
+    sp.appendChild(bn);richText(sp,t);
     l.appendChild(cb);l.appendChild(sp);wrap.appendChild(l);
   });
   return wrap;
@@ -638,13 +680,11 @@ function render(){
       var p=document.createElement("p");var bb=document.createElement("b");bb.textContent=r[0]+": ";
       p.appendChild(bb);p.appendChild(document.createTextNode(r[1]));b.appendChild(p);
     });
-    if(Q[i]){var qh=document.createElement("p");var qb=document.createElement("b");qb.textContent="Questões da semana: 30 de cada matéria";qh.appendChild(qb);b.appendChild(qh);
+    var pk=QDKeys(i);
+    if(pk.length){var qh=document.createElement("p");var qb=document.createElement("b");qb.textContent="Questões da semana: 30 por dia, de segunda a sábado (180 no total). O caderno e a faixa de cada dia estão no plano por dia, logo abaixo.";qh.appendChild(qb);b.appendChild(qh);
       var ql=document.createElement("ul");ql.style.cssText="margin:6px 0 0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:4px";
-      Q[i].forEach(function(q,qi){var qq=(q===PT&&PTX[i])?PTX[i]:q;var li=document.createElement("li");var s=document.createElement("b");s.textContent="30 questões de "+qq[0];li.appendChild(s);
-      var tk=QT[i]&&QT[i][qi];li.appendChild(document.createTextNode(". "));
-      if(tk&&tk[0]&&TEC[tk[0]]){var tb=document.createElement("b");tb.textContent="TEC: ";li.appendChild(tb);var a=document.createElement("a");a.href=tecUrl(tk[0]);a.target="_blank";a.rel="noopener";a.textContent=TEC[tk[0]].n;a.style.color="var(--accent)";li.appendChild(a);li.appendChild(document.createTextNode(tk[1]?" ("+tk[1]+"). ":". "))}
-      else{li.appendChild(document.createTextNode("TEC: ainda sem caderno para este item. "))}
-      li.appendChild(document.createTextNode("Mapa da Prova: "+qq[1]+"."));ql.appendChild(li)});b.appendChild(ql)}
+      pk.forEach(function(k){var li=document.createElement("li");var a=document.createElement("a");a.href=tecUrl(k);a.target="_blank";a.rel="noopener";a.textContent=TEC[k].n;a.style.color="var(--accent)";li.appendChild(a);li.appendChild(document.createTextNode(" ("+TEC[k].q+" questões)"));ql.appendChild(li)});
+      b.appendChild(ql)}
     b.appendChild(dayBlock(i,w));
     T.forEach(function(t,j){
       var l=document.createElement("label");l.className="task";
