@@ -123,6 +123,22 @@ a.tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .eritem .acts{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:10px}
 .eritem .acts label{display:flex;gap:6px;align-items:center;cursor:pointer;font-size:14px}
 .eritem .acts input{accent-color:var(--accent);width:16px;height:16px}
+.qzcard{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;margin-top:12px;min-width:0}
+.qzmeta{color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.qzq{margin:10px 0 12px;font-size:16px;overflow-wrap:anywhere}
+.qzopts{display:flex;flex-direction:column;gap:8px}
+button.qzopt{font:inherit;text-align:left;cursor:pointer;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;gap:10px;overflow-wrap:anywhere;width:100%}
+button.qzopt b{font-family:var(--display);color:var(--accent);flex:none}
+button.qzopt.sel{border-color:var(--accent);outline:2px solid var(--accent)}
+button.qzopt.ok{border-color:var(--ok);background:var(--accent-soft);outline:2px solid var(--ok)}
+button.qzopt.bad{border-color:var(--bad);outline:2px solid var(--bad)}
+button.qzopt:disabled{cursor:default;color:var(--fg)}
+button.qzopt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.qzexp{margin-top:12px;padding:12px 14px;border-left:3px solid var(--ok);background:var(--accent-soft);border-radius:0 6px 6px 0}
+.qzexp.bad{border-left-color:var(--bad)}
+.qzexp p{margin:0 0 6px;overflow-wrap:anywhere}
+.qzacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.erbtn:disabled{opacity:.5;cursor:default}
 footer{color:var(--muted);font-size:13px}
 </style>
 
@@ -143,6 +159,7 @@ footer{color:var(--muted);font-size:13px}
 <nav class="nav" aria-label="Telas">
 <a class="on" href="#inicio" data-go="inicio">Início</a>
 <a href="#cronograma" data-go="cronograma">Cronograma semanal</a>
+<a href="#questoes" data-go="questoes">Questões</a>
 <a href="#caderno-de-erros" data-go="caderno-de-erros">Caderno de erros</a>
 <a href="#mapa-mental" data-go="mapa-mental">Mapa mental</a>
 <a href="#cadernos" data-go="cadernos">Cadernos de questões</a>
@@ -167,6 +184,7 @@ footer{color:var(--muted);font-size:13px}
 <h2>Abrir uma tela</h2>
 <div class="tiles">
 <a class="tile" href="#cronograma" data-go="cronograma"><b>Cronograma semanal</b><span>As 16 semanas, mais a das leis e as extras, com as tarefas para marcar.</span></a>
+<a class="tile" href="#questoes" data-go="questoes"><b>Questões</b><span>Banco extra para treinar fora dos cadernos, com gabarito comentado.</span></a>
 <a class="tile" href="#caderno-de-erros" data-go="caderno-de-erros"><b>Caderno de erros</b><span>Anote o que errou, o motivo e a regra certa. Filtre e revise.</span></a>
 <a class="tile" href="#mapa-mental" data-go="mapa-mental"><b>Mapa mental</b><span>Monte e edite mapas para fixar cada matéria.</span></a>
 <a class="tile" href="#cadernos" data-go="cadernos"><b>Cadernos de questões</b><span>Seus 7 cadernos do Mapa da Prova e em que semana usar cada um.</span></a>
@@ -307,6 +325,26 @@ footer{color:var(--muted);font-size:13px}
 </section>
 </div>
 
+<div class="view" id="v-questoes" hidden>
+<section id="questoes">
+<h2>Questões para treinar</h2>
+<p class="sub">Banco extra para treinar fora dos seus cadernos do Mapa da Prova. Escolha a matéria, responda e veja o gabarito comentado. Se errar, um botão leva a questão para o caderno de erros.</p>
+<div class="note">
+<p><b>Leia antes:</b> são questões originais, escritas para este plano. Não são de provas reais nem da banca do ES. As do Estatuto foram conferidas no texto da LC 1.136/2026 (Diário Oficial de 6/1/2026). As de corpo de delito e cadeia de custódia seguem os arts. 158 a 184 e 158-A a 158-F do CPP, e vale conferir no texto da lei. As de Português seguem a norma-padrão.</p>
+</div>
+<div class="mmbar">
+<label for="qzmat" class="sub" style="margin:0">Matéria</label>
+<select id="qzmat"></select>
+<label for="qzshow" class="sub" style="margin:0">Mostrar</label>
+<select id="qzshow"></select>
+<button type="button" id="qzgo" class="solid">Começar</button>
+<button type="button" id="qzreset" class="danger">Zerar placar</button>
+</div>
+<div class="erchips" id="qzchips"></div>
+<div id="qzbox"></div>
+</section>
+</div>
+
 <div class="view" id="v-erros" hidden>
 <section id="caderno-de-erros">
 <h2>Caderno de erros</h2>
@@ -389,16 +427,16 @@ var Q=[
 [PT,["Criminalística: Noções, Doutrina e Áreas de Atuação","PCIES 4 – Criminalística"],["Processual Penal: Da Prova (CPP arts. 155 a 250)","PCIES 6 – Penal e Processual Penal, assunto \"Da Prova\" (58 questões; use as 9 que sobraram de Corpo de Delito e as demais)"]],
 [PT,["Criminalística: Prova, Corpo de Delito e Cadeia de Custódia","PCIES 4 – Criminalística"],["Corpo de Delito e Cadeia de Custódia (CPP arts. 158-A a 158-F), refazendo as erradas","PCIES 6 – mesmo assunto da semana 1, mais o caderno de erros"]],
 [PT,["Criminalística: Locais de Crime, Vestígios e Documentos","PCIES 4 – Criminalística"]],
-[PT,["Medicina Legal: Conceito, Documentos, Identidade","PCIES 5 – Medicina Legal"],["Estatuto da PCIES, arts. 1 a 31","Nenhum: monte 30 perguntas suas"]],
-[PT,["Medicina Legal: Traumatologia Forense","PCIES 5 – Medicina Legal"],["Estatuto da PCIES, arts. 32 a 79","Nenhum: monte 30 perguntas suas"]],
-[PT,["Medicina Legal: Tanatologia","PCIES 5 – Medicina Legal"],["Estatuto da PCIES, arts. 80 a 164","Nenhum: monte 30 perguntas suas"]],
+[PT,["Medicina Legal: Conceito, Documentos, Identidade","PCIES 5 – Medicina Legal, assuntos Documentos Médico-Legais (19), Antropologia e Identificação (14), Aspectos Gerais (15) e Medicina Legal geral (46)"],["Estatuto da PCIES, arts. 1 a 31","Nenhum: monte 30 perguntas suas"]],
+[PT,["Medicina Legal: Traumatologia Forense","PCIES 5 – Medicina Legal, assunto Traumatologia médico-legal (139 questões)"],["Estatuto da PCIES, arts. 32 a 79","Nenhum: monte 30 perguntas suas"]],
+[PT,["Medicina Legal: Tanatologia","PCIES 5 – Medicina Legal, assuntos Tanatologia médico-legal (51) e Anatomia e Necropsia (77)"],["Estatuto da PCIES, arts. 80 a 164","Nenhum: monte 30 perguntas suas"]],
 [PT,["Revisão de Criminalística","PCIES 4 – Criminalística"],["Revisão de Medicina Legal","PCIES 5 – Medicina Legal"]],
-[PT,["Processual Penal: Disposições Preliminares e Inquérito","PCIES 6 – Penal e Processual Penal"]],
-[PT,["Processual Penal: Ação Penal, Prisão e Liberdade Provisória","PCIES 6 – Penal e Processual Penal"]],
-[PT,["Direito Penal: Parte Geral, Vida e Lesões Corporais","PCIES 6 – Penal e Processual Penal"]],
-[PT,["Direito Penal: Crimes contra a Administração Pública","PCIES 6 – Penal e Processual Penal"]],
-[PT,["Direito Administrativo","PCIES 7 – Administrativo e Constitucional"],["Estatuto da PCIES (revisão)","Nenhum: monte 30 perguntas suas"]],
-[PT,["Direito Constitucional: art. 5º e Administração Pública","PCIES 7 – Administrativo e Constitucional"]],
+[PT,["Processual Penal: Disposições Preliminares e Inquérito","PCIES 6 – Penal e Processual Penal, assuntos Inquérito Policial (24) e Processo Penal, Sistemas e Princípios (5); complete com Ação Penal (12)"]],
+[PT,["Processual Penal: Ação Penal, Prisão e Liberdade Provisória","PCIES 6 – Penal e Processual Penal, assuntos Ação Penal (12) e Prisão, Medidas Cautelares e Liberdade Provisória (13); complete com Inquérito Policial"]],
+[PT,["Direito Penal: Parte Geral, Vida e Lesões Corporais","PCIES 6 – Penal e Processual Penal, assuntos Teoria do Crime (31), Lei Penal (7) e Crimes contra a Pessoa (15)"]],
+[PT,["Direito Penal: Crimes contra a Administração Pública","PCIES 6 – Penal e Processual Penal, assunto Crimes contra a Administração Pública (12); complete com Crimes contra o Patrimônio (10) e Dignidade Sexual (5)"]],
+[PT,["Direito Administrativo","PCIES 7 – Administrativo e Constitucional, assuntos Poderes e Deveres (18), Atos Administrativos (14), Organização Administrativa (10) e Agentes Públicos (9)"],["Estatuto da PCIES (revisão)","Nenhum: monte 30 perguntas suas"]],
+[PT,["Direito Constitucional: art. 5º e Administração Pública","PCIES 7 – Administrativo e Constitucional, assuntos Direitos e Garantias Fundamentais (35) e Defesa do Estado, arts. 136 a 144 (11); complete com Administração Pública (8)"]],
 [PT,["Simulado geral","PCIES 2 – Todas as provas"],["Refazer a prova PC-ES 2019","PCIES 1 – Prova 2019"]],
 [PT,["Revisão dos assuntos com menor acerto","PCIES 2 – Todas as provas"],["Refazer as erradas","Caderno de erros do site"]],
 [PT,["Estatuto da PCIES e LC 1.137/2026","Nenhum: monte 30 perguntas suas"]],
@@ -406,6 +444,31 @@ var Q=[
 [PT,["Informática","PCIES 1 e PCIES 2 (filtre o assunto)"]],
 [PT,["Legislação Especial","PCIES 1 e PCIES 2 (filtre o assunto)"],["Arquivologia","PCIES 1 e PCIES 2 (filtre o assunto)"]],
 [PT,["Química, Anatomia, Fotografia e Atualidades","PCIES 1 e PCIES 2 (filtre o assunto)"]]
+];
+/* Português por semana, conforme os assuntos reais do caderno PCIES 3 (conferidos no Mapa da Prova) */
+var CP3="PCIES 3 – Português, assunto ";
+var PTX=[
+["Português: Interpretação de Textos",CP3+"Compreensão e Interpretação de Textos (111 questões)"],
+["Português: Interpretação de Textos",CP3+"Compreensão e Interpretação de Textos (111 questões; faça outras 30)"],
+["Português: Ortografia",CP3+"Ortografia (33 questões)"],
+["Português: Morfologia",CP3+"Morfologia (52 questões)"],
+["Português: Concordância Verbal e Nominal",CP3+"Sintaxe: 18 de Concordância Verbal e Nominal e 12 de Análise Sintática"],
+["Português: Regência e Sintaxe",CP3+"Sintaxe: 9 de Regência Verbal e Nominal e 21 de análise sintática e voz verbal"],
+["Português: Crase e revisão",CP3+"Sintaxe: 15 de Uso da Crase e 15 de Concordância ou Regência que você errou"],
+["Português: Semântica",CP3+"Semântica (91 questões): significação de vocábulos, sinônimos e antônimos"],
+["Português: Pontuação",CP3+"Sintaxe, Pontuação (32 questões, o maior assunto de gramática do caderno)"],
+["Português: Coordenação e subordinação",CP3+"Sintaxe, período composto (4), Morfologia, Conjunções (9); complete com análise sintática"],
+["Português: Coesão e Coerência",CP3+"Semântica, Coesão e Coerência (32 questões)"],
+["Português: Pronomes átonos",CP3+"Colocação Pronominal (4) e Pronomes (2); complete com 24 de Crase, Concordância e Regência erradas"],
+["Português: Reescrita de frases",CP3+"Correção e Reescrita de Textos (51 questões)"],
+["Português: Interpretação (revisão)",CP3+"Compreensão e Interpretação de Textos (as erradas e as que faltam)"],
+["Português: revisão geral","PCIES 3 – Português, as erradas de todos os assuntos"],
+["Português: revisão geral","PCIES 3 – Português, as erradas de todos os assuntos"],
+["Português: o assunto que você mais erra","PCIES 3 – Português, filtre pelo assunto com mais erros no seu caderno de erros"],
+["Português: o assunto que você mais erra","PCIES 3 – Português, filtre pelo assunto com mais erros no seu caderno de erros"],
+["Português: o assunto que você mais erra","PCIES 3 – Português, filtre pelo assunto com mais erros no seu caderno de erros"],
+["Português: o assunto que você mais erra","PCIES 3 – Português, filtre pelo assunto com mais erros no seu caderno de erros"],
+["Português: o assunto que você mais erra","PCIES 3 – Português, filtre pelo assunto com mais erros no seu caderno de erros"]
 ];
 var KEY="plano-pcies-v2",state={};
 try{state=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){state={}}
@@ -432,7 +495,7 @@ function render(){
     });
     if(Q[i]){var qh=document.createElement("p");var qb=document.createElement("b");qb.textContent="Questões da semana: 30 de cada matéria";qh.appendChild(qb);b.appendChild(qh);
       var ql=document.createElement("ul");ql.style.cssText="margin:6px 0 0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:4px";
-      Q[i].forEach(function(q){var li=document.createElement("li");var s=document.createElement("b");s.textContent="30 questões de "+(q===PT?"Português: "+w[1]:q[0]);li.appendChild(s);li.appendChild(document.createTextNode(". Caderno: "+q[1]+"."));ql.appendChild(li)});b.appendChild(ql)}
+      Q[i].forEach(function(q){var qq=(q===PT&&PTX[i])?PTX[i]:q;var li=document.createElement("li");var s=document.createElement("b");s.textContent="30 questões de "+qq[0];li.appendChild(s);li.appendChild(document.createTextNode(". Caderno: "+qq[1]+"."));ql.appendChild(li)});b.appendChild(ql)}
     if(w[6]){var ul=document.createElement("ul");ul.style.cssText="margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:4px";
       w[6].forEach(function(x){var li=document.createElement("li");li.textContent=x;ul.appendChild(li)});b.appendChild(ul)}
     T.forEach(function(t,j){
@@ -585,13 +648,164 @@ $("erform").addEventListener("submit",function(e){
   list.push({id:Date.now()+"-"+list.length,m:$("ermat").value,tp:tp,q:$("erq").value.trim(),mo:$("ermot").value,r:r,d:new Date().toLocaleDateString("pt-BR"),ok:false});
   save();$("ertp").value="";$("erq").value="";$("errule").value="";$("ertp").focus();render();
 });
+window.addEventListener("pcies-add-erro",function(e){
+  var d=e.detail||{};
+  list.push({id:Date.now()+"-"+list.length,m:d.m||"Outra",tp:d.tp||"",q:d.q||"",mo:d.mo||"Outro motivo",r:d.r||"",d:new Date().toLocaleDateString("pt-BR"),ok:false});
+  save();render();
+});
 ["erfmat","erfmot","erfrev"].forEach(function(id){$(id).addEventListener("change",render)});
 render();
 })();
 </script>
 <script>
+/* Banco de questões originais. Em cada questão, a primeira alternativa (o[0]) é a correta; a ordem é embaralhada ao exibir. */
+var QM1="Português",QM2="Corpo de delito e cadeia de custódia (CPP)",QM3="Estatuto da PCIES (LC 1.136/2026)";
+var QBANK=[
+{id:"pt1",m:QM1,t:"Crase",f:"Gramática normativa",q:"Assinale a alternativa em que o emprego do acento grave indicativo de crase está correto.",o:["Entreguei o laudo à perita responsável.","Fomos à pé até o fórum.","Ela começou à falar sobre o caso.","O perito referiu-se à ele com respeito.","Estamos dispostos à colaborar."],e:"Há crase quando se juntam a preposição “a” e o artigo “a” diante de substantivo feminino: entregar (algo) a + a perita. Não há crase antes de palavra masculina (a pé), de verbo (a falar, a colaborar) nem de pronome pessoal (a ele)."},
+{id:"pt2",m:QM1,t:"Concordância verbal",f:"Gramática normativa",q:"Assinale a alternativa em que a concordância verbal está de acordo com a norma-padrão.",o:["Existem vários vestígios no local.","Fazem dois anos que o laboratório foi inaugurado.","Houveram várias denúncias no período.","Devem haver provas suficientes nos autos.","Haviam muitos peritos na sala."],e:"“Existir” é pessoal e concorda com o sujeito (vários vestígios). “Fazer” indicando tempo e “haver” no sentido de existir são impessoais e ficam no singular: Faz dois anos; Houve várias denúncias; Deve haver provas; Havia muitos peritos."},
+{id:"pt3",m:QM1,t:"Regência verbal",f:"Gramática normativa",q:"O verbo está empregado de acordo com a norma-padrão em:",o:["O perito assistiu ao exame de necropsia.","Prefiro mais café do que chá.","Obedeço as normas do setor.","Aspiro o cargo de perito.","Esqueci-me as chaves."],e:"Assistir, no sentido de presenciar, pede a preposição a: assistiu ao exame. Nas demais, o correto seria: prefiro café a chá; obedeço às normas; aspiro ao cargo; esqueci-me das chaves (ou esqueci as chaves)."},
+{id:"pt4",m:QM1,t:"Pontuação",f:"Gramática normativa",q:"A pontuação está correta em:",o:["Os vestígios, que foram coletados ontem, estão no laboratório.","O perito, chegou ao local e iniciou o exame.","O laudo foi entregue, ao juiz.","Maria, e João chegaram cedo.","Disse que, o perito não viria."],e:"A oração adjetiva explicativa (que foram coletados ontem) vem isolada por vírgulas. Não se separa o sujeito do verbo, nem o verbo do complemento, e não se usa vírgula antes do “e” que liga termos do mesmo sujeito."},
+{id:"pt5",m:QM1,t:"Ortografia: porquês",f:"Gramática normativa",q:"Assinale a alternativa que completa corretamente as lacunas: “____ o exame foi adiado? Não sei ____; só sei que foi ____ faltou energia. Ninguém entendeu o ____ do adiamento.”",o:["Por que / por quê / porque / porquê","Por que / por que / porque / porquê","Porque / por quê / porque / por quê","Por quê / por que / por que / porque","Por que / porque / porquê / por quê"],e:"Pergunta direta no início: “por que”. Antes de pontuação final: “por quê”, com acento. Resposta, indicando causa: “porque”. Substantivo, com artigo (o porquê): junto e acentuado."},
+{id:"pt6",m:QM1,t:"Colocação pronominal",f:"Gramática normativa",q:"Assinale a alternativa em que a colocação do pronome átono está de acordo com a norma-padrão.",o:["Ninguém me avisou do resultado.","Me avise quando o exame terminar.","Não avisaram-me do resultado.","O perito tinha avisado-me do prazo.","Avisarei-te assim que o laudo ficar pronto."],e:"Pronome indefinido (ninguém) atrai o pronome átono: próclise. Na norma-padrão não se inicia frase com pronome oblíquo; palavra negativa também atrai próclise (não me avisaram); com tempo composto o pronome liga-se ao auxiliar (tinha-me avisado), não ao particípio; com futuro do presente não se usa ênclise (avisar-te-ei ou te avisarei)."},
+{id:"pt7",m:QM1,t:"Interpretação de texto",f:"Interpretação",q:"Leia o trecho: “O exame pericial não se limita a descrever o que foi encontrado. O perito, ao interpretar os vestígios, reconstitui o que provavelmente aconteceu, e é essa reconstituição que auxilia o juiz.” Segundo o texto, o trabalho do perito:",o:["inclui interpretar os vestígios para reconstituir o que provavelmente ocorreu.","restringe-se a descrever objetos encontrados no local.","substitui a decisão do juiz.","dispensa a análise dos vestígios.","só começa depois da sentença."],e:"O texto afirma que o exame não se limita a descrever e que o perito interpreta os vestígios e reconstitui os fatos. Também diz que isso auxilia o juiz, e não que o substitui."},
+{id:"pt8",m:QM1,t:"Semântica: sinônimos",f:"Semântica",q:"No trecho “o perito corroborou a hipótese inicial”, o verbo “corroborou” pode ser substituído, sem alterar o sentido, por:",o:["confirmou","refutou","ignorou","adiou","questionou"],e:"Corroborar é reforçar, confirmar. Refutar e questionar expressam oposição ou dúvida."},
+{id:"pt9",m:QM1,t:"Orações subordinadas",f:"Sintaxe do período",q:"Em “O laudo foi anulado porque o perito não tinha habilitação”, a oração iniciada por “porque” é:",o:["subordinada adverbial causal.","coordenada explicativa.","subordinada substantiva objetiva direta.","subordinada adjetiva restritiva.","coordenada aditiva."],e:"A oração indica a causa do fato expresso na principal (por que o laudo foi anulado) e depende dela: subordinada adverbial causal."},
+{id:"pt10",m:QM1,t:"Reescrita de frases",f:"Reescrita",q:"Assinale a reescrita de “Embora o laudo tenha sido entregue, o juiz pediu nova perícia.” que mantém o sentido e a correção gramatical.",o:["Apesar de o laudo ter sido entregue, o juiz pediu nova perícia.","Como o laudo foi entregue, o juiz pediu nova perícia.","Porque o laudo foi entregue, o juiz pediu nova perícia.","Desde que o laudo fosse entregue, o juiz pediu nova perícia.","Logo que o laudo foi entregue, o juiz pediu nova perícia."],e:"“Embora” e “apesar de” expressam concessão (oposição que não impede o fato). “Como” e “porque” dão causa; “desde que”, condição; “logo que”, tempo."},
+{id:"pt11",m:QM1,t:"Morfologia: classes de palavras",f:"Morfologia",q:"Na frase “O perito é muito atento, mas respondeu pouco.”, as palavras “muito” e “mas” são, respectivamente:",o:["advérbio de intensidade e conjunção adversativa.","adjetivo e conjunção aditiva.","pronome indefinido e conjunção explicativa.","advérbio de modo e conjunção adversativa.","advérbio de intensidade e preposição."],e:"“Muito” modifica o adjetivo “atento” e dá ideia de intensidade: advérbio. “Mas” liga orações de sentido oposto: conjunção adversativa."},
+{id:"pt12",m:QM1,t:"Ortografia: acentuação",f:"Ortografia",q:"Assinale a alternativa em que todas as palavras estão corretamente grafadas quanto à acentuação.",o:["hífen, vírus, juiz","idéia, jóquei, perícia","heroi, anzol, médico","paíz, raiz, ônibus","cafe, saúde, tênis"],e:"Hífen e vírus são paroxítonas acentuadas (terminadas em -en e -us); juiz é oxítona terminada em z e não leva acento. Nas outras alternativas: ideia (sem acento desde o Acordo de 2009), herói, país, café."},
+{id:"cp1",m:QM2,t:"Exame de corpo de delito",f:"CPP, art. 158",q:"Quando a infração penal deixar vestígios, o exame de corpo de delito:",o:["é indispensável, direto ou indireto, e a confissão do acusado não pode supri-lo.","é dispensável quando houver confissão do acusado.","só é obrigatório nos crimes contra a vida.","pode sempre ser substituído por prova testemunhal.","é facultativo, a critério do juiz."],e:"Art. 158 do CPP: quando a infração deixar vestígios, será indispensável o exame de corpo de delito, direto ou indireto, não podendo supri-lo a confissão do acusado."},
+{id:"cp2",m:QM2,t:"Cadeia de custódia: conceito",f:"CPP, art. 158-A",q:"Segundo o CPP, a cadeia de custódia é:",o:["o conjunto de procedimentos para manter e documentar a história cronológica do vestígio, rastreando sua posse e manuseio do reconhecimento até o descarte.","o conjunto de normas que regula a prisão preventiva de investigados.","a sequência de recursos cabíveis contra o laudo pericial.","o registro de presos em unidades prisionais.","o procedimento de guarda de documentos do processo."],e:"Art. 158-A do CPP: cadeia de custódia é o conjunto de todos os procedimentos utilizados para manter e documentar a história cronológica do vestígio coletado em locais ou em vítimas de crimes, para rastrear sua posse e manuseio a partir de seu reconhecimento até o descarte."},
+{id:"cp3",m:QM2,t:"Cadeia de custódia: etapas",f:"CPP, art. 158-B",q:"Assinale a alternativa que NÃO é etapa da cadeia de custódia prevista no CPP.",o:["Julgamento","Isolamento","Fixação","Acondicionamento","Descarte"],e:"O art. 158-B lista dez etapas: reconhecimento, isolamento, fixação, coleta, acondicionamento, transporte, recebimento, processamento, armazenamento e descarte. Julgamento não é etapa da cadeia de custódia."},
+{id:"cp4",m:QM2,t:"Cadeia de custódia: ordem das etapas",f:"CPP, art. 158-B",q:"Qual alternativa traz, na ordem correta, as três primeiras etapas da cadeia de custódia?",o:["Reconhecimento, isolamento e fixação","Isolamento, reconhecimento e coleta","Reconhecimento, coleta e isolamento","Fixação, isolamento e reconhecimento","Coleta, fixação e acondicionamento"],e:"A ordem do art. 158-B é: reconhecimento, isolamento, fixação, coleta, acondicionamento, transporte, recebimento, processamento, armazenamento e descarte."},
+{id:"cp5",m:QM2,t:"Preservação do vestígio",f:"CPP, art. 158-A, § 2º",q:"De acordo com o CPP, o agente público que reconhecer um elemento como de potencial interesse para a produção da prova pericial:",o:["fica responsável por sua preservação.","deve entregá-lo imediatamente ao juiz.","pode descartá-lo se houver dúvida.","só responde se for perito oficial.","fica dispensado de documentar o manuseio."],e:"Art. 158-A, § 2º, do CPP: o agente público que reconhecer um elemento como de potencial interesse para a produção da prova pericial fica responsável por sua preservação."},
+{id:"cp6",m:QM2,t:"Coleta de vestígios",f:"CPP, art. 158-C",q:"Segundo o CPP, a coleta dos vestígios deve ser realizada:",o:["preferencialmente por perito oficial, que dará o encaminhamento necessário para a central de custódia.","exclusivamente pelo delegado de polícia.","obrigatoriamente pelo juiz, na presença das partes.","por qualquer pessoa, sem necessidade de registro.","apenas depois do trânsito em julgado da sentença."],e:"Art. 158-C do CPP: a coleta dos vestígios deverá ser realizada preferencialmente por perito oficial, que dará o encaminhamento necessário para a central de custódia."},
+{id:"cp7",m:QM2,t:"Quem realiza a perícia",f:"CPP, art. 159",q:"O exame de corpo de delito e as demais perícias serão realizados, em regra, por:",o:["perito oficial, portador de diploma de curso superior.","duas pessoas idôneas, sem exigência de diploma.","um servidor do cartório, nomeado pelo juiz.","o delegado, acompanhado de testemunhas.","o Ministério Público, pessoalmente."],e:"Art. 159 do CPP: serão realizados por perito oficial, portador de diploma de curso superior. Só na falta de perito oficial o exame é feito por duas pessoas idôneas, também portadoras de diploma de curso superior, preferencialmente na área específica (§ 1º)."},
+{id:"cp8",m:QM2,t:"Prazo do laudo",f:"CPP, art. 160, parágrafo único",q:"O laudo pericial será elaborado, em regra, no prazo máximo de:",o:["10 dias, podendo ser prorrogado em casos excepcionais, a requerimento dos peritos.","5 dias, improrrogável.","15 dias, prorrogável por decisão do delegado.","30 dias, sem possibilidade de prorrogação.","48 horas, prorrogável por igual período."],e:"Art. 160, parágrafo único, do CPP: o laudo pericial será elaborado no prazo máximo de 10 dias, podendo este prazo ser prorrogado, em casos excepcionais, a requerimento dos peritos."},
+{id:"cp9",m:QM2,t:"Autópsia",f:"CPP, art. 162",q:"Em regra, a autópsia será feita pelo menos:",o:["seis horas depois do óbito, salvo se os peritos julgarem, pela evidência dos sinais de morte, que possa ser feita antes.","24 horas depois do óbito, sem exceção.","imediatamente após o óbito, sem exceção.","48 horas depois do óbito, salvo decisão judicial.","três dias depois do óbito."],e:"Art. 162 do CPP: a autópsia será feita pelo menos seis horas depois do óbito, salvo se os peritos, pela evidência dos sinais de morte, julgarem que possa ser feita antes daquele prazo, o que declararão no auto."},
+{id:"cp10",m:QM2,t:"Desaparecimento dos vestígios",f:"CPP, art. 167",q:"Se não for possível o exame de corpo de delito porque desapareceram os vestígios, a falta poderá ser suprida por:",o:["prova testemunhal.","confissão do acusado.","presunção do juiz.","laudo de qualquer particular.","nenhuma outra prova; o processo deve ser arquivado."],e:"Art. 167 do CPP: não sendo possível o exame de corpo de delito, por haverem desaparecido os vestígios, a prova testemunhal poderá suprir-lhe a falta. A confissão, porém, não pode suprir o exame (art. 158)."},
+{id:"cp11",m:QM2,t:"Valor do laudo",f:"CPP, art. 182",q:"Quanto ao laudo pericial, o juiz:",o:["não fica adstrito ao laudo, podendo aceitá-lo ou rejeitá-lo, no todo ou em parte.","é obrigado a aceitar integralmente o laudo.","só pode rejeitá-lo se as partes concordarem.","deve rejeitá-lo quando houver divergência entre peritos.","não pode se manifestar sobre o laudo."],e:"Art. 182 do CPP: o juiz não ficará adstrito ao laudo, podendo aceitá-lo ou rejeitá-lo, no todo ou em parte."},
+{id:"cp12",m:QM2,t:"Perícias de laboratório",f:"CPP, art. 170",q:"Nas perícias de laboratório, os peritos devem:",o:["guardar material suficiente para a eventualidade de nova perícia.","consumir todo o material na primeira análise.","devolver o material ao investigado após a coleta.","descartar o material assim que concluírem o laudo.","entregar todo o material às partes."],e:"Art. 170 do CPP: nas perícias de laboratório, os peritos guardarão material suficiente para a eventualidade de nova perícia. Sempre que conveniente, os laudos serão ilustrados com provas fotográficas, microfotográficas, desenhos ou esquemas."},
+{id:"es1",m:QM3,t:"Cargos da PCIES",f:"LC 1.136/2026, art. 3º",q:"Segundo o Estatuto dos Policiais Científicos do ES, as carreiras da PCIES são formadas pelos cargos de:",o:["Perito Oficial Criminal, Perito Oficial Médico Legista e Assistente de Perícia.","Perito Criminal, Delegado Científico e Auxiliar de Necropsia.","Perito Oficial Geral, Corregedor e Assistente de Perícia.","Perito Médico, Técnico Forense e Papiloscopista.","Perito Oficial Criminal e Perito Oficial Médico Legista, apenas."],e:"Art. 3º: as carreiras são formadas pelos cargos de Perito Oficial Criminal, Perito Oficial Médico Legista e Assistente de Perícia."},
+{id:"es2",m:QM3,t:"Assistente de Perícia",f:"LC 1.136/2026, art. 3º, § 3º",q:"De acordo com o Estatuto, os Assistentes de Perícia são:",o:["auxiliares de natureza técnica no desempenho da atividade finalística da PCIES.","autoridades da PCIES e auxiliares da Justiça.","gestores da cadeia de custódia.","responsáveis pela designação de funções gratificadas.","ocupantes de cargo em comissão."],e:"Art. 3º, § 3º. Os Peritos Oficiais é que são autoridades da PCIES e auxiliares da Justiça, com autonomia técnica, científica e funcional, gestores da cadeia de custódia (§ 2º)."},
+{id:"es3",m:QM3,t:"Regime subsidiário",f:"LC 1.136/2026, art. 1º, § 2º",q:"No que o Estatuto for omisso, aplicam-se subsidiariamente aos policiais científicos as disposições do Regime Jurídico Único dos servidores do Estado, previsto na:",o:["Lei Complementar nº 46, de 31 de janeiro de 1994.","Lei nº 8.112, de 11 de dezembro de 1990.","Lei Complementar nº 1.137/2026.","Lei nº 9.784/1999.","Constituição Federal, apenas."],e:"Art. 1º, § 2º: aplicam-se subsidiariamente as disposições do Regime Jurídico Único do ES, na forma da LC nº 46/1994. A Lei 8.112/1990 é federal."},
+{id:"es4",m:QM3,t:"Estágio probatório",f:"LC 1.136/2026, art. 22",q:"O estágio probatório do policial científico é o período de:",o:["3 anos, a contar do início do exercício.","2 anos, a contar da posse.","3 anos, a contar da publicação do edital.","1 ano, a contar da nomeação.","5 anos, a contar da aprovação no concurso."],e:"Art. 22: estágio probatório é o período de 3 anos, a contar da data do início do exercício, durante o qual são apuradas a aptidão e a capacidade para permanecer no cargo."},
+{id:"es5",m:QM3,t:"Estabilidade",f:"LC 1.136/2026, art. 27",q:"O policial científico adquire estabilidade ao completar 3 anos de efetivo exercício e só perderá o cargo:",o:["por sentença judicial transitada em julgado ou mediante processo administrativo disciplinar com contraditório e ampla defesa.","por simples decisão do Perito Oficial Geral.","por mera avaliação de desempenho semestral.","apenas por sentença judicial, nunca por processo administrativo.","por decisão do Secretário, sem necessidade de defesa."],e:"Art. 27, incisos I e II: sentença judicial transitada em julgado ou processo administrativo disciplinar em que lhe seja assegurado o contraditório e a ampla defesa."},
+{id:"es6",m:QM3,t:"Posse e exercício",f:"LC 1.136/2026, arts. 16 e 18",q:"Quanto aos prazos da posse e do exercício, o Estatuto prevê que:",o:["a posse ocorre em até 30 dias da publicação da nomeação, e o exercício em até 15 dias contados da posse.","a posse ocorre em até 15 dias da nomeação, e o exercício em até 30 dias.","a posse e o exercício ocorrem no mesmo dia.","a posse ocorre em até 60 dias, e o exercício em até 30 dias.","o exercício ocorre antes da posse, em até 15 dias."],e:"Art. 16, § 2º: posse em até 30 dias da publicação do ato de nomeação. Art. 18: exercício em até 15 dias contados da data da posse."},
+{id:"es7",m:QM3,t:"Jornada de trabalho",f:"LC 1.136/2026, art. 39",q:"A carga horária semanal do cargo de Assistente de Perícia é de:",o:["40 horas.","30 horas.","20 horas.","44 horas.","36 horas."],e:"Art. 39: 40 horas semanais para Perito Oficial Criminal e para Assistente de Perícia; 30 horas semanais para Perito Oficial Médico Legista."},
+{id:"es8",m:QM3,t:"Penas disciplinares",f:"LC 1.136/2026, art. 89",q:"São penas disciplinares previstas no Estatuto:",o:["advertência, destituição de cargo em comissão ou função gratificada, suspensão, demissão e cassação de aposentadoria ou de disponibilidade.","advertência, multa, suspensão, demissão e prisão administrativa.","repreensão, suspensão, rebaixamento de classe e demissão.","advertência, suspensão, remoção compulsória e demissão.","advertência verbal, multa e demissão."],e:"Art. 89, incisos I a V: advertência; destituição de cargo em comissão ou função gratificada; suspensão; demissão; e cassação de aposentadoria ou de disponibilidade."},
+{id:"es9",m:QM3,t:"Prescrição",f:"LC 1.136/2026, art. 75",q:"A prescrição das faltas sujeitas à pena de suspensão ocorre em:",o:["2 anos.","180 dias.","5 anos.","1 ano.","10 anos."],e:"Art. 75: em 5 anos quanto aos atos de demissão e cassação de aposentadoria ou disponibilidade; em 2 anos quanto às faltas sujeitas à pena de suspensão; em 180 dias nos demais casos, salvo outro prazo fixado em lei."},
+{id:"es10",m:QM3,t:"Requisitos de investidura",f:"LC 1.136/2026, art. 8º",q:"Entre os requisitos básicos para investidura nos cargos da Polícia Científica está:",o:["idade mínima de 18 anos.","idade mínima de 21 anos.","idade máxima de 35 anos.","residência prévia no Espírito Santo.","experiência anterior comprovada em perícia."],e:"Art. 8º, V: idade mínima de 18 anos. Os demais requisitos incluem nacionalidade brasileira, gozo dos direitos políticos, quitação eleitoral e militar, escolaridade exigida, aptidão física e mental e idoneidade moral."},
+{id:"es11",m:QM3,t:"Curso de formação",f:"LC 1.136/2026, art. 11, § 4º",q:"Os candidatos que frequentarem o curso de formação profissional têm direito a auxílio financeiro de:",o:["50% do subsídio inicial da tabela de referência do respectivo cargo.","100% do subsídio inicial do cargo.","25% do subsídio inicial do cargo.","um salário mínimo estadual.","nenhum valor, por ser etapa do concurso."],e:"Art. 11, § 4º: auxílio financeiro equivalente a 50% do subsídio inicial da tabela de referência do respectivo cargo."},
+{id:"es12",m:QM3,t:"Reprovação no estágio probatório",f:"LC 1.136/2026, art. 24",q:"Será considerado reprovado no estágio probatório e exonerado o policial científico que, entre outras hipóteses, incorrer em mais de:",o:["30 faltas não justificadas consecutivas ou mais de 40 interpoladas, durante o período de 12 meses.","10 faltas justificadas no ano.","15 faltas consecutivas, justificadas ou não.","60 faltas interpoladas em 24 meses.","5 atrasos injustificados."],e:"Art. 24, II: mais de 30 faltas não justificadas e consecutivas ou mais de 40 faltas não justificadas, interpoladamente, durante o período de 12 meses. Também reprova quem não atingir o desempenho mínimo ou sofrer sentença penal condenatória irrecorrível."}
+];
+</script>
+<script>
 (function(){
-var VIEWS={"inicio":"v-inicio","cronograma":"v-cronograma","caderno-de-erros":"v-erros","mapa-mental":"v-mapa","cadernos":"v-cadernos","analise":"v-analise"};
+var QK="plano-pcies-quiz-v1",prog={};
+try{prog=JSON.parse(localStorage.getItem(QK)||"{}")}catch(e){prog={}}
+if(!prog||typeof prog!=="object"||Array.isArray(prog))prog={};
+function save(){try{localStorage.setItem(QK,JSON.stringify(prog))}catch(e){}}
+function $(id){return document.getElementById(id)}
+var MATS=[QM1,QM2,QM3];
+var ERRMAT={};ERRMAT[QM1]="Português";ERRMAT[QM2]="Processual Penal";ERRMAT[QM3]="Estatuto da PCIES";
+var LET=["A","B","C","D","E"];
+function opt(sel,val,txt){var o=document.createElement("option");o.value=val;o.textContent=txt;sel.appendChild(o)}
+opt($("qzmat"),"","Todas as matérias");MATS.forEach(function(m){opt($("qzmat"),m,m)});
+opt($("qzshow"),"all","Todas as questões");opt($("qzshow"),"new","Só as que ainda não respondi");opt($("qzshow"),"wrong","Só as que errei");
+var list=[],pos=0;
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function chip(t){var s=document.createElement("span");s.className="pill";s.textContent=t;return s}
+function stats(){
+  var c=$("qzchips");c.innerHTML="";
+  var ans=0,ok=0;
+  QBANK.forEach(function(q){var p=prog[q.id];if(p){ans++;if(p.ok)ok++}});
+  c.appendChild(chip("Respondidas: "+ans+" de "+QBANK.length));
+  c.appendChild(chip("Acertos: "+ok+(ans?" ("+Math.round(ok*100/ans)+"%)":"")));
+  MATS.forEach(function(m){
+    var a=0,k=0,tt=0;QBANK.forEach(function(q){if(q.m!==m)return;tt++;var p=prog[q.id];if(p){a++;if(p.ok)k++}});
+    c.appendChild(chip(m.split(" (")[0]+": "+k+"/"+a+" de "+tt));
+  });
+}
+function build(){
+  var mat=$("qzmat").value,sh=$("qzshow").value;
+  list=QBANK.filter(function(q){
+    if(mat&&q.m!==mat)return false;
+    var p=prog[q.id];
+    if(sh==="new")return !p;
+    if(sh==="wrong")return !!p&&!p.ok;
+    return true;
+  });
+  pos=0;draw();
+}
+function draw(){
+  var box=$("qzbox");box.innerHTML="";stats();
+  if(!list.length){
+    var p=document.createElement("p");p.className="sub";
+    p.textContent="Nenhuma questão com esse filtro. Troque a matéria ou escolha “Todas as questões”.";box.appendChild(p);return;
+  }
+  var q=list[pos],perm=shuffle(q.o.map(function(_,i){return i})),chosen=-1,done=false;
+  var card=document.createElement("div");card.className="qzcard";
+  var mt=document.createElement("div");mt.className="qzmeta";
+  mt.textContent="Questão "+(pos+1)+" de "+list.length+" · "+q.m+" · "+q.t+" · "+q.f;card.appendChild(mt);
+  var qq=document.createElement("p");qq.className="qzq";qq.textContent=q.q;card.appendChild(qq);
+  var og=document.createElement("div");og.className="qzopts";og.setAttribute("role","group");og.setAttribute("aria-label","Alternativas");
+  var btns=perm.map(function(orig,k){
+    var b=document.createElement("button");b.type="button";b.className="qzopt";b.setAttribute("aria-pressed","false");
+    var l=document.createElement("b");l.textContent=LET[k]+")";var s=document.createElement("span");s.textContent=q.o[orig];
+    b.appendChild(l);b.appendChild(s);
+    b.addEventListener("click",function(){
+      if(done)return;chosen=k;
+      btns.forEach(function(x,i){x.classList.toggle("sel",i===k);x.setAttribute("aria-pressed",i===k?"true":"false")});
+      conf.disabled=false;
+    });
+    og.appendChild(b);return b;
+  });
+  card.appendChild(og);
+  var acts=document.createElement("div");acts.className="qzacts";
+  var conf=document.createElement("button");conf.type="button";conf.className="erbtn";conf.textContent="Confirmar resposta";conf.disabled=true;
+  var prev=document.createElement("button");prev.type="button";prev.className="erbtn ghost";prev.textContent="Anterior";prev.disabled=pos===0;
+  var next=document.createElement("button");next.type="button";next.className="erbtn ghost";next.textContent=pos===list.length-1?"Recomeçar":"Próxima";
+  prev.addEventListener("click",function(){if(pos>0){pos--;draw()}});
+  next.addEventListener("click",function(){if(pos<list.length-1){pos++;draw()}else{build()}});
+  conf.addEventListener("click",function(){
+    if(chosen<0||done)return;done=true;
+    var right=perm.indexOf(0),ok=(chosen===right);
+    var old=prog[q.id];prog[q.id]={ok:ok,n:(old&&old.n?old.n:0)+1};save();
+    btns.forEach(function(x,i){x.disabled=true;x.classList.remove("sel");if(i===right)x.classList.add("ok");else if(i===chosen)x.classList.add("bad")});
+    conf.remove();
+    var ex=document.createElement("div");ex.className="qzexp"+(ok?"":" bad");
+    var h=document.createElement("p");var hb=document.createElement("b");
+    hb.textContent=ok?"Você acertou.":"Você errou. A correta é a alternativa "+LET[right]+".";h.appendChild(hb);ex.appendChild(h);
+    var e=document.createElement("p");e.textContent=q.e;ex.appendChild(e);
+    card.insertBefore(ex,acts);
+    if(!ok){
+      var add=document.createElement("button");add.type="button";add.className="erbtn danger";add.textContent="Anotar no caderno de erros";
+      add.addEventListener("click",function(){
+        window.dispatchEvent(new CustomEvent("pcies-add-erro",{detail:{m:ERRMAT[q.m]||"Outra",tp:q.t,q:"Aba Questões, "+q.f,mo:"Não sabia a regra",r:q.o[0]+" "+q.e}}));
+        add.disabled=true;add.textContent="Anotado";
+      });
+      acts.insertBefore(add,next);
+    }
+    stats();
+  });
+  acts.appendChild(conf);acts.appendChild(prev);acts.appendChild(next);card.appendChild(acts);
+  box.appendChild(card);
+}
+$("qzgo").addEventListener("click",build);
+$("qzmat").addEventListener("change",build);
+$("qzshow").addEventListener("change",build);
+var armed=false,tm=null;
+$("qzreset").addEventListener("click",function(){
+  var b=$("qzreset");
+  if(!armed){armed=true;b.textContent="Confirmar zerar";tm=setTimeout(function(){armed=false;b.textContent="Zerar placar"},3000);return}
+  clearTimeout(tm);armed=false;b.textContent="Zerar placar";prog={};save();build();
+});
+build();
+})();
+</script>
+<script>
+(function(){
+var VIEWS={"inicio":"v-inicio","cronograma":"v-cronograma","questoes":"v-questoes","caderno-de-erros":"v-erros","mapa-mental":"v-mapa","cadernos":"v-cadernos","analise":"v-analise"};
 function $(id){return document.getElementById(id)}
 function readLS(k,def){try{var v=JSON.parse(localStorage.getItem(k));return v==null?def:v}catch(e){return def}}
 function li(pillTxt,txt,done){var l=document.createElement("li");var p=document.createElement("span");p.className="pill"+(done?" done":"");p.textContent=pillTxt;var s=document.createElement("span");s.textContent=txt;l.appendChild(p);l.appendChild(s);return l}
