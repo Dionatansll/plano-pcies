@@ -382,10 +382,36 @@ var W=[
 ["Extra: Legislação e Arquivologia","Português: 10 questões por dia","Legislação Especial (identidade, Improbidade, Lei 9.784/99) e Arquivologia","Leis 7.116/83, 5.553/68 e 9.454/97","Filtrar por assunto nos cadernos 1 e 2",1],
 ["Extra: Ciências e Atualidades","Português: 10 questões por dia","Química, Física, Anatomia, Biossegurança, Fotografia e Atualidades","Sem lei seca nesta semana","Filtrar por assunto nos cadernos 1 e 2",1]
 ];
+/* 30 questões por matéria em cada semana: [matéria, caderno] */
+var PT=["Português: tópico da semana","PCIES 3 – Português"];
+var Q=[
+[["Português: Interpretação de Textos","PCIES 3 – Português"],["Criminalística: Corpo de Delito","PCIES 4 – Criminalística"]],
+[PT,["Criminalística: Noções, Doutrina e Áreas de Atuação","PCIES 4 – Criminalística"],["Processual Penal: CPP arts. 158 a 184","PCIES 6 – Penal e Processual Penal"]],
+[PT,["Criminalística: Prova, Corpo de Delito e Cadeia de Custódia","PCIES 4 – Criminalística"],["Processual Penal: CPP arts. 158-A a 158-F","PCIES 6 – Penal e Processual Penal"]],
+[PT,["Criminalística: Locais de Crime, Vestígios e Documentos","PCIES 4 – Criminalística"]],
+[PT,["Medicina Legal: Conceito, Documentos, Identidade","PCIES 5 – Medicina Legal"],["Estatuto da PCIES, arts. 1 a 31","Nenhum: monte 30 perguntas suas"]],
+[PT,["Medicina Legal: Traumatologia Forense","PCIES 5 – Medicina Legal"],["Estatuto da PCIES, arts. 32 a 79","Nenhum: monte 30 perguntas suas"]],
+[PT,["Medicina Legal: Tanatologia","PCIES 5 – Medicina Legal"],["Estatuto da PCIES, arts. 80 a 164","Nenhum: monte 30 perguntas suas"]],
+[PT,["Revisão de Criminalística","PCIES 4 – Criminalística"],["Revisão de Medicina Legal","PCIES 5 – Medicina Legal"]],
+[PT,["Processual Penal: Disposições Preliminares e Inquérito","PCIES 6 – Penal e Processual Penal"]],
+[PT,["Processual Penal: Ação Penal, Prisão e Liberdade Provisória","PCIES 6 – Penal e Processual Penal"]],
+[PT,["Direito Penal: Parte Geral, Vida e Lesões Corporais","PCIES 6 – Penal e Processual Penal"]],
+[PT,["Direito Penal: Crimes contra a Administração Pública","PCIES 6 – Penal e Processual Penal"]],
+[PT,["Direito Administrativo","PCIES 7 – Administrativo e Constitucional"],["Estatuto da PCIES (revisão)","Nenhum: monte 30 perguntas suas"]],
+[PT,["Direito Constitucional: art. 5º e Administração Pública","PCIES 7 – Administrativo e Constitucional"]],
+[PT,["Simulado geral","PCIES 2 – Todas as provas"],["Refazer a prova PC-ES 2019","PCIES 1 – Prova 2019"]],
+[PT,["Revisão dos assuntos com menor acerto","PCIES 2 – Todas as provas"],["Refazer as erradas","Caderno de erros do site"]],
+[PT,["Estatuto da PCIES e LC 1.137/2026","Nenhum: monte 30 perguntas suas"]],
+[PT,["Raciocínio Lógico","PCIES 1 e PCIES 2 (filtre o assunto)"]],
+[PT,["Informática","PCIES 1 e PCIES 2 (filtre o assunto)"]],
+[PT,["Legislação Especial","PCIES 1 e PCIES 2 (filtre o assunto)"],["Arquivologia","PCIES 1 e PCIES 2 (filtre o assunto)"]],
+[PT,["Química, Anatomia, Fotografia e Atualidades","PCIES 1 e PCIES 2 (filtre o assunto)"]]
+];
 var KEY="plano-pcies-v2",state={};
 try{state=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){state={}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 var T=["Aula ou leitura da matéria","Questões do caderno e 10 de Português por dia","Lei seca e revisão dos erros"];
+function taskLabel(i,j){return j===1?"Fazer as 30 questões de cada matéria da semana":T[j]}
 var root=document.getElementById("weeks");
 function firstOpen(){for(var i=0;i<W.length;i++){for(var j=0;j<T.length;j++){if(!state[i+"-"+j])return i}}return 0}
 function render(){
@@ -404,13 +430,16 @@ function render(){
       var p=document.createElement("p");var bb=document.createElement("b");bb.textContent=r[0]+": ";
       p.appendChild(bb);p.appendChild(document.createTextNode(r[1]));b.appendChild(p);
     });
+    if(Q[i]){var qh=document.createElement("p");var qb=document.createElement("b");qb.textContent="Questões da semana: 30 de cada matéria";qh.appendChild(qb);b.appendChild(qh);
+      var ql=document.createElement("ul");ql.style.cssText="margin:6px 0 0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:4px";
+      Q[i].forEach(function(q){var li=document.createElement("li");var s=document.createElement("b");s.textContent="30 questões de "+q[0];li.appendChild(s);li.appendChild(document.createTextNode(". Caderno: "+q[1]+"."));ql.appendChild(li)});b.appendChild(ql)}
     if(w[6]){var ul=document.createElement("ul");ul.style.cssText="margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:4px";
       w[6].forEach(function(x){var li=document.createElement("li");li.textContent=x;ul.appendChild(li)});b.appendChild(ul)}
     T.forEach(function(t,j){
       var l=document.createElement("label");l.className="task";
       var cb=document.createElement("input");cb.type="checkbox";cb.id="t-"+i+"-"+j;cb.checked=!!state[i+"-"+j];
       cb.addEventListener("change",function(){state[i+"-"+j]=cb.checked;save();var open=d.open;render();if(open)root.children[i].open=true});
-      var sp=document.createElement("span");sp.textContent=t;
+      var sp=document.createElement("span");sp.textContent=taskLabel(i,j);
       l.appendChild(cb);l.appendChild(sp);b.appendChild(l);
     });
     d.appendChild(b);
@@ -574,7 +603,7 @@ function renderDash(){
   var wk=firstOpen();if(wk>=W.length)wk=W.length-1;
   $("d-week").textContent="Semana "+(wk+1);$("d-week-sub").textContent=W[wk][0];
   var ul=$("d-tasks");ul.innerHTML="";
-  T.forEach(function(t,j){var ok=!!state[wk+"-"+j];ul.appendChild(li(ok?"Feito":"Falta",t,ok))});
+  T.forEach(function(t,j){var ok=!!state[wk+"-"+j];ul.appendChild(li(ok?"Feito":"Falta",taskLabel(wk,j),ok))});
   var er=readLS("plano-pcies-erros-v1",[]);if(!Array.isArray(er))er=[];
   var pend=er.filter(function(x){return !x.ok}).length;
   $("d-err").textContent=pend;$("d-err-sub").textContent=er.length?er.length+" anotados, "+(er.length-pend)+" revisados":"Nenhum erro anotado ainda";
