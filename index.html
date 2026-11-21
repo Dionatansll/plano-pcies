@@ -295,7 +295,7 @@ footer{color:var(--muted);font-size:13px}
 <li><b>40 min:</b> questões do caderno da matéria.</li>
 <li><b>10 min:</b> anotar o motivo de cada erro.</li>
 </ol>
-<p class="sub">Sábado: bloco de questões misturadas. Domingo: refazer só as erradas da semana.</p>
+<p class="sub">Sábado: bloco de questões misturadas. Domingo: dia fixo de revisão do caderno de erros, com as erradas desta semana e das 2 anteriores.</p>
 <h3>Meta de acerto</h3>
 <p class="sub">Só avance de matéria quando o caderno passar de 70%. Abaixo disso, reveja o tópico em que mais errou.</p>
 </aside>
@@ -457,7 +457,7 @@ var W=[
  "Dia 4: Estatuto, arts. 101 a 164. Procedimento preliminar, termo de ajustamento de conduta, comissão processante, processo disciplinar, revisão e disposições finais.",
  "Dia 5: LC 1.137/2026, arts. 1 a 45. Carreiras, jornada, avaliação de desempenho, subsídio, progressão e promoção.",
  "Sábado: faça um resumo de uma página por título e escreva 20 perguntas suas sobre a lei.",
- "Domingo: responda as 20 perguntas sem olhar o texto e releia os artigos que errou."]],
+ "Domingo: revisão do caderno de erros. Responda as 20 perguntas sem olhar o texto, releia os artigos que errou e refaça as erradas das semanas anteriores."]],
 ["Extra: Raciocínio Lógico","Português: 10 questões por dia","Raciocínio Lógico: estruturas lógicas, argumentação, lógica sentencial, contagem e probabilidade, conjuntos","Sem lei seca nesta semana","Filtrar Raciocínio nos cadernos 1 e 2",1],
 ["Extra: Informática (segunda passada)","Português: 10 questões por dia","Informática: Windows, Linux, Office, LibreOffice, navegação, e-mail, nuvem e segurança","Sem lei seca nesta semana","Filtrar Informática nos cadernos 1 e 2",1],
 ["Extra: Legislação e Arquivologia","Português: 10 questões por dia","Legislação Especial (identidade, Improbidade, Lei 9.784/99) e Arquivologia","Leis 7.116/83, 5.553/68 e 9.454/97","Filtrar por assunto nos cadernos 1 e 2",1],
@@ -577,7 +577,7 @@ function dayTexts(i,w){
     m1?"30 questões de "+m1+" (60 min), corrija cada erro (40 min) e anote no caderno de erros (20 min)."+tecTxt(i,1):"Revisão da matéria da semana e resumo no mapa mental (2 h).",
     "Lei seca e erros: "+w[3]+" (60 min)"+(m2?" e 30 questões de "+m2+" (50 min)."+tecTxt(i,2):" e revisão dos erros da semana (50 min)."),
     "Bloco misto: 40 questões misturadas das matérias da semana, mais as que você errou (2 h).",
-    "Dia leve: refaça só as erradas da semana, feche o caderno de erros e olhe a semana seguinte (1 h)."
+    "Revisão do caderno de erros (todo domingo): refaça as erradas desta semana e das 2 semanas anteriores, no TEC e na aba Caderno de erros do site. Reescreva a regra das que errar de novo e marque \"Revisei\" nas que já sabe explicar (1 h a 2 h). Depois, 10 min para olhar a semana seguinte."
   ];
 }
 function dayBlock(i,w){
