@@ -562,17 +562,42 @@ var T=["Aula ou leitura da matéria","Questões do caderno e 10 de Português po
 function taskLabel(i,j){return j===1?"Fazer as 30 questões de cada matéria da semana":T[j]}
 var root=document.getElementById("weeks");
 /* Plano por dia: monta Segunda a Domingo de cada semana a partir do conteúdo, das questões e dos cadernos do TEC */
+/* Onde achar cada conteúdo no curso da Nova (nomes exatos dos tópicos): [Língua Portuguesa > tópico, módulo e tópicos da matéria] */
+var NV=[
+["Compreensão e Interpretação de Textos de Gêneros Variados e Reconhecimento de Tipos e Gêneros Textuais","Criminalística > Prova e Corpo de Delito (o Exame de Corpo de Delito e as perícias do CPP estão dentro desse tópico)"],
+["Compreensão e Interpretação de Textos de Gêneros Variados e Reconhecimento de Tipos e Gêneros Textuais","Criminalística > Noções de Criminalística, Doutrina Criminalística e Áreas de Atuação da Criminalística"],
+["Domínio da Ortografia Oficial","Criminalística > Prova e Corpo de Delito e Cadeia de Custódia"],
+["Morfologia e Emprego das Classes de Palavras","Criminalística > Documentos Criminalísticos e Locais de Crime (os Vestígios de Interesse Forense estão dentro de Locais de Crime)"],
+["Concordância Verbal e Nominal","Noções de Medicina Legal > Conceito, Importância, Divisões da Medicina Legal e Perícia Médico-Legal; Documentos Médico-Legais; Conceitos de Identidade, de Identificação e de Reconhecimento"],
+["Regência Verbal e Nominal","Noções de Medicina Legal > Traumatologia Forense"],
+["Emprego do Sinal Indicativo de Crase","Noções de Medicina Legal > Tanatologia Forense"],
+["","Noções de Informática > Windows, Office, LibreOffice, navegação, e-mail, nuvem e segurança da informação"],
+["Emprego dos Sinais de Pontuação","Noções de Direito Processual Penal > Disposições Preliminares do CPP e Inquérito Policial"],
+["Relações de Coordenação e Subordinação entre Orações e entre Termos da Oração","Noções de Direito Processual Penal > Ação Penal e Prisão e Liberdade Provisória"],
+["Domínio dos Mecanismos de Coesão Textual","Noções de Direito Penal - Parte Geral e Parte Especial > Aplicação da Lei Penal, Crimes Contra a Vida e Lesões Corporais"],
+["Colocação dos Pronomes Átonos","Noções de Direito Penal - Parte Especial > Crimes Contra a Administração Pública"],
+["Reescrita de Frases e Parágrafos do Texto","Noções de Direito Administrativo > Organização Administrativa, Ato Administrativo, Agentes Públicos e Poderes Administrativos"],
+["Compreensão e Interpretação de Textos de Gêneros Variados e Reconhecimento de Tipos e Gêneros Textuais","Noções de Direito Constitucional > Direitos e Deveres Individuais e Coletivos e Administração Pública"],
+["","Sem aula nova: o Estatuto da PCIES vem do PDF oficial. A Lei 9.434/97 está no curso Polícia Científica SP"],
+["","Sem aula nova: revisão dos erros e das matérias com menor acerto"],
+["","Não está na Nova: Estatuto e LC 1.137/2026 vêm do PDF oficial (Diário Oficial do ES)"],
+["","Raciocínio Lógico > todos os 7 tópicos"],
+["","Noções de Informática (segunda passada, pelos tópicos em que você mais errou)"],
+["","Legislação Especial e Noções de Arquivologia"],
+["","Noções de Química (com Física, Anatomia, Fisiologia e Biossegurança), Noções de Fotografia e Atualidades"]
+];
+function nvText(i){var n=NV[i];if(!n)return"";return (n[0]?"Português: Língua Portuguesa > "+n[0]+". ":"")+(n[1]?"Matéria: "+n[1]+".":"")}
 var DAYS=["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
 function tecTxt(i,k){var qt=QT[i]&&QT[i][k];if(qt&&qt[0]&&TEC[qt[0]])return " No TEC: "+TEC[qt[0]].n+(qt[1]?" ("+qt[1]+")":"")+".";return ""}
 function dayTexts(i,w){
   if(w[6])return w[6].map(function(x){return x.replace(/^[^:]*:\s*/,"")});
-  var q=Q[i]||[];
+  var q=Q[i]||[];var nv=NV[i]||["",""];
   function nm(k){var b=q[k];if(!b)return null;var qq=(b===PT&&PTX[i])?PTX[i]:b;return qq[0]}
   var pt=(nm(0)||"Português").replace(/^Português:\s*/,"");
   var m1=nm(1),m2=nm(2);
   return [
-    "Português, "+pt+": aula na Nova (50 min), depois 15 das 30 questões (60 min) e anote os erros (10 min)."+tecTxt(i,0),
-    "Matéria da semana, "+w[2]+": aula (80 min), resumo ou mapa mental (30 min) e revisão rápida (10 min).",
+    "Português, "+pt+": "+(nv[0]?"aula na Nova, em Língua Portuguesa > "+nv[0]:"aula ou revisão na Nova")+" (50 min), depois 15 das 30 questões (60 min) e anote os erros (10 min)."+tecTxt(i,0),
+    "Matéria da semana, "+w[2]+": aula na Nova, em "+(nv[1]||"o módulo da matéria")+" (80 min), resumo ou mapa mental (30 min) e revisão rápida (10 min). Se você já concluiu esse tópico, use o tempo para revisar e resumir.",
     "Português, "+pt+": as outras 15 questões (50 min), reveja a regra de cada erro (40 min) e fixe no mapa mental (30 min).",
     m1?"30 questões de "+m1+" (60 min), corrija cada erro (40 min) e anote no caderno de erros (20 min)."+tecTxt(i,1):"Revisão da matéria da semana e resumo no mapa mental (2 h).",
     "Lei seca e erros: "+w[3]+" (60 min)"+(m2?" e 30 questões de "+m2+" (50 min)."+tecTxt(i,2):" e revisão dos erros da semana (50 min)."),
@@ -609,7 +634,7 @@ function render(){
     s.querySelector(".wt").textContent=w[0];
     d.appendChild(s);
     var b=document.createElement("div");b.className="body";
-    [["Português",w[1]],["Matéria",w[2]],["Lei seca",w[3]],["Caderno",w[4]]].forEach(function(r){
+    [["Português",w[1]],["Matéria",w[2]],["Onde achar na Nova",nvText(i)],["Lei seca",w[3]],["Caderno",w[4]]].forEach(function(r){
       var p=document.createElement("p");var bb=document.createElement("b");bb.textContent=r[0]+": ";
       p.appendChild(bb);p.appendChild(document.createTextNode(r[1]));b.appendChild(p);
     });
