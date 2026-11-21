@@ -432,7 +432,7 @@ function render(){
     });
     if(Q[i]){var qh=document.createElement("p");var qb=document.createElement("b");qb.textContent="Questões da semana: 30 de cada matéria";qh.appendChild(qb);b.appendChild(qh);
       var ql=document.createElement("ul");ql.style.cssText="margin:6px 0 0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:4px";
-      Q[i].forEach(function(q){var li=document.createElement("li");var s=document.createElement("b");s.textContent="30 questões de "+q[0];li.appendChild(s);li.appendChild(document.createTextNode(". Caderno: "+q[1]+"."));ql.appendChild(li)});b.appendChild(ql)}
+      Q[i].forEach(function(q){var li=document.createElement("li");var s=document.createElement("b");s.textContent="30 questões de "+(q===PT?"Português: "+w[1]:q[0]);li.appendChild(s);li.appendChild(document.createTextNode(". Caderno: "+q[1]+"."));ql.appendChild(li)});b.appendChild(ql)}
     if(w[6]){var ul=document.createElement("ul");ul.style.cssText="margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:4px";
       w[6].forEach(function(x){var li=document.createElement("li");li.textContent=x;ul.appendChild(li)});b.appendChild(ul)}
     T.forEach(function(t,j){
