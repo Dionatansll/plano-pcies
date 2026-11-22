@@ -645,6 +645,7 @@ var QT=[
 var KEY="plano-pcies-v2",state={};
 try{state=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){state={}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+if(!state.adj1){state.adj1=1;state["0-d0"]=true;save()}
 var T=["Aula ou leitura da matéria","Questões do caderno e 10 de Português por dia","Lei seca e revisão dos erros"];
 function taskLabel(i,j){return j===1?"Fazer as 30 questões de cada dia, de segunda a sábado":T[j]}
 var root=document.getElementById("weeks");
@@ -740,6 +741,7 @@ function richText(span,t){
 function dayBlock(i,w){
   var wrap=document.createElement("div");wrap.style.marginTop="8px";
   var texts=dayTexts(i,w),done=0;
+  if(i===0)texts[0]="JÁ FEITO NO SÁBADO (21/11), marcado como feito. Na segunda-feira de verdade, siga para o próximo dia sem marcar (Terça) e vá em sequência; o domingo continua sendo a revisão dos erros. Conteúdo do dia: "+texts[0];
   texts.forEach(function(_,k){if(state[i+"-d"+k])done++});
   var h=document.createElement("p");var hb=document.createElement("b");
   hb.textContent="Plano por dia (cerca de 2 horas por dia, com 30 questões de segunda a sábado): "+done+" de 7 dias feitos";h.appendChild(hb);wrap.appendChild(h);
