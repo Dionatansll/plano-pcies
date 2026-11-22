@@ -433,6 +433,7 @@ footer{color:var(--muted);font-size:13px}
 <section id="caderno-de-erros">
 <h2>Caderno de erros</h2>
 <p class="sub">Anote cada questão errada com o motivo e a regra certa. Releia as que ainda não revisou e marque "Revisei" quando conseguir explicar sozinho. Tudo fica salvo neste navegador.</p>
+<div id="errev" style="margin-top:14px"></div>
 <form class="erform" id="erform">
 <label for="ermat">Matéria<select id="ermat"></select></label>
 <label for="ertp">Tópico<input type="text" id="ertp" placeholder="Ex.: Crase antes de pronome"></label>
@@ -442,6 +443,7 @@ footer{color:var(--muted);font-size:13px}
 <div class="wide"><button type="submit" class="erbtn">Adicionar ao caderno</button></div>
 </form>
 <div class="erchips" id="erchips"></div>
+<div id="ermapa" style="margin-top:12px"></div>
 <div class="erfilter">
 <label for="erfmat">Filtrar por matéria<select id="erfmat"></select></label>
 <label for="erfmot">Filtrar por motivo<select id="erfmot"></select></label>
@@ -884,12 +886,49 @@ try{list=JSON.parse(localStorage.getItem(EK)||"[]")}catch(e){list=[]}
 if(!Array.isArray(list))list=[];
 function save(){try{localStorage.setItem(EK,JSON.stringify(list))}catch(e){}}
 function $(id){return document.getElementById(id)}
+var DAY=864e5,INTV=[1,7,30];
+function endToday(){var d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()+1).getTime()-1}
+function parseD(s){var m=/^(\d+)\/(\d+)\/(\d+)$/.exec(s||"");return m?new Date(+m[3],+m[2]-1,+m[1]).getTime():Date.now()}
+function norm(x){if(!x.t)x.t=parseD(x.d);if(x.st==null)x.st=x.ok?3:0;if(!x.ok&&!x.due)x.due=x.t+DAY;return x}
+list.forEach(norm);
+function renderRev(){
+  var box=$("errev");box.innerHTML="";
+  var due=list.filter(function(x){return !x.ok&&(x.due||0)<=endToday()}).sort(function(a,b){return (a.due||0)-(b.due||0)});
+  var h=document.createElement("h3");h.textContent="Revisão de hoje: "+due.length;box.appendChild(h);
+  var p=document.createElement("p");p.className="sub";p.textContent="Cada erro volta em 1, 7 e 30 dias. Tente lembrar a regra antes de abrir a resposta. Depois do terceiro acerto, ele vira revisado.";box.appendChild(p);
+  if(!due.length){var n=document.createElement("p");n.className="sub";n.textContent=list.length?"Nada para revisar hoje. Os próximos voltam nos dias marcados.":"Anote os erros do dia abaixo e eles voltam amanhã para revisão.";box.appendChild(n);return}
+  due.slice(0,10).forEach(function(x){
+    var d=document.createElement("div");d.className="eritem";
+    var t=document.createElement("h4");t.textContent=x.tp||"Sem tópico";d.appendChild(t);
+    var mt=document.createElement("div");mt.className="meta";mt.textContent=[x.m,x.q,x.mo,"revisão "+(Math.min(x.st,2)+1)+" de 3"].filter(Boolean).join(" · ");d.appendChild(mt);
+    var r=document.createElement("p");r.hidden=true;r.textContent=x.r||"Você não anotou a regra. Escreva-a agora, com suas palavras, no formulário abaixo.";d.appendChild(r);
+    var a=document.createElement("div");a.className="acts";
+    var b1=document.createElement("button");b1.type="button";b1.className="erbtn";b1.textContent="Mostrar a regra";b1.addEventListener("click",function(){r.hidden=!r.hidden;b1.textContent=r.hidden?"Mostrar a regra":"Esconder a regra"});
+    var b2=document.createElement("button");b2.type="button";b2.className="erbtn";b2.textContent="Lembrei";
+    b2.addEventListener("click",function(){x.st=(x.st||0)+1;if(x.st>=3){x.ok=true;x.due=null}else{x.due=Date.now()+INTV[x.st]*DAY}save();render()});
+    var b3=document.createElement("button");b3.type="button";b3.className="erbtn danger";b3.textContent="Errei de novo";
+    b3.addEventListener("click",function(){x.st=0;x.ok=false;x.due=Date.now()+DAY;save();render()});
+    a.appendChild(b1);a.appendChild(b2);a.appendChild(b3);d.appendChild(a);box.appendChild(d);
+  });
+  if(due.length>10){var m=document.createElement("p");m.className="sub";m.textContent="Mais "+(due.length-10)+" na fila. Faça estes primeiro.";box.appendChild(m)}
+}
+function renderMapa(){
+  var box=$("ermapa");box.innerHTML="";if(!list.length)return;
+  var by={};list.forEach(function(x){var k=x.m||"Outra";by[k]=(by[k]||0)+1});
+  var ks=Object.keys(by).sort(function(a,b){return by[b]-by[a]}),mx=by[ks[0]]||1;
+  var h=document.createElement("h3");h.textContent="Onde você mais erra";box.appendChild(h);
+  ks.forEach(function(k){var row=document.createElement("div");row.className="hb";var n=document.createElement("span");n.textContent=k;var tr=document.createElement("div");tr.className="t";var f=document.createElement("i");f.style.width=Math.round(by[k]*100/mx)+"%";tr.appendChild(f);var v=document.createElement("span");v.textContent=by[k];row.appendChild(n);row.appendChild(tr);row.appendChild(v);box.appendChild(row)});
+  var tp={};list.forEach(function(x){var k=(x.tp||"").trim().toLowerCase();if(!k)return;if(!tp[k])tp[k]={n:0,t:x.tp.trim()};tp[k].n++});
+  var top=Object.keys(tp).sort(function(a,b){return tp[b].n-tp[a].n}).slice(0,6);
+  if(top.length){var p=document.createElement("p");p.className="sub";p.textContent="Assuntos que mais voltam:";box.appendChild(p);var c=document.createElement("div");c.className="erchips";top.forEach(function(k){c.appendChild(chip(tp[k].t+": "+tp[k].n))});box.appendChild(c)}
+}
 var MAT=["Português","Raciocínio Lógico","Informática","Criminalística","Medicina Legal","Direito Penal","Processual Penal","Administrativo","Constitucional","Estatuto da PCIES","Outra"];
 var MOT=["Não sabia a regra","Li rápido","Confundi conceitos","Chutei","Pegadinha da banca","Outro motivo"];
 function opts(sel,arr,all){sel.innerHTML="";if(all){var o=document.createElement("option");o.value="";o.textContent=all;sel.appendChild(o)}arr.forEach(function(x){var o=document.createElement("option");o.value=x;o.textContent=x;sel.appendChild(o)})}
 opts($("ermat"),MAT);opts($("ermot"),MOT);opts($("erfmat"),MAT,"Todas as matérias");opts($("erfmot"),MOT,"Todos os motivos");
 function chip(txt){var s=document.createElement("span");s.className="pill";s.textContent=txt;return s}
 function render(){
+  renderRev();renderMapa();
   var fm=$("erfmat").value,fo=$("erfmot").value,fr=$("erfrev").value;
   var chips=$("erchips");chips.innerHTML="";
   var rev=list.filter(function(x){return x.ok}).length;
@@ -907,7 +946,7 @@ function render(){
     if(x.r){var p=document.createElement("p");p.textContent=x.r;d.appendChild(p)}
     var a=document.createElement("div");a.className="acts";
     var l=document.createElement("label");var cb=document.createElement("input");cb.type="checkbox";cb.id="erok-"+x.id;cb.checked=!!x.ok;
-    cb.addEventListener("change",function(){x.ok=cb.checked;save();render()});
+    cb.addEventListener("change",function(){x.ok=cb.checked;if(x.ok){x.st=3;x.due=null}else{x.st=0;x.due=Date.now()+DAY}save();render()});
     l.appendChild(cb);l.appendChild(document.createTextNode("Revisei"));a.appendChild(l);
     var b=document.createElement("button");b.type="button";b.className="erbtn danger";b.textContent="Excluir";
     var armed=false,t=null;
@@ -921,12 +960,12 @@ $("erform").addEventListener("submit",function(e){
   e.preventDefault();
   var tp=$("ertp").value.trim(),r=$("errule").value.trim();
   if(!tp&&!r){$("ertp").focus();return}
-  list.push({id:Date.now()+"-"+list.length,m:$("ermat").value,tp:tp,q:$("erq").value.trim(),mo:$("ermot").value,r:r,d:new Date().toLocaleDateString("pt-BR"),ok:false});
+  list.push({id:Date.now()+"-"+list.length,m:$("ermat").value,tp:tp,q:$("erq").value.trim(),mo:$("ermot").value,r:r,d:new Date().toLocaleDateString("pt-BR"),ok:false,t:Date.now(),st:0,due:Date.now()+DAY});
   save();$("ertp").value="";$("erq").value="";$("errule").value="";$("ertp").focus();render();
 });
 window.addEventListener("pcies-add-erro",function(e){
   var d=e.detail||{};
-  list.push({id:Date.now()+"-"+list.length,m:d.m||"Outra",tp:d.tp||"",q:d.q||"",mo:d.mo||"Outro motivo",r:d.r||"",d:new Date().toLocaleDateString("pt-BR"),ok:false});
+  list.push({id:Date.now()+"-"+list.length,m:d.m||"Outra",tp:d.tp||"",q:d.q||"",mo:d.mo||"Outro motivo",r:d.r||"",d:new Date().toLocaleDateString("pt-BR"),ok:false,t:Date.now(),st:0,due:Date.now()+DAY});
   save();render();
 });
 ["erfmat","erfmot","erfrev"].forEach(function(id){$(id).addEventListener("change",render)});
@@ -1143,7 +1182,7 @@ function renderDash(){renderTop();
   T.forEach(function(t,j){var ok=!!state[wk+"-"+j];ul.appendChild(li(ok?"Feito":"Falta",taskLabel(wk,j),ok))});
   var er=readLS("plano-pcies-erros-v1",[]);if(!Array.isArray(er))er=[];
   var pend=er.filter(function(x){return !x.ok}).length;
-  $("d-err").textContent=pend;$("d-err-sub").textContent=er.length?er.length+" anotados, "+(er.length-pend)+" revisados":"Nenhum erro anotado ainda";
+  var et=new Date();et=new Date(et.getFullYear(),et.getMonth(),et.getDate()+1).getTime()-1;var dueN=er.filter(function(x){return !x.ok&&(x.due||0)<=et}).length;$("d-err").textContent=pend;$("d-err-sub").textContent=er.length?er.length+" anotados, "+(er.length-pend)+" revisados. Para revisar hoje: "+dueN:"Nenhum erro anotado ainda";
   var mp=readLS("plano-pcies-mapas-v1",null);$("d-maps").textContent=mp&&typeof mp==="object"?Object.keys(mp).length:3;
   var lu=$("d-last");lu.innerHTML="";
   if(!er.length){var e0=document.createElement("li");e0.textContent="Quando você anotar um erro, ele aparece aqui.";lu.appendChild(e0)}
