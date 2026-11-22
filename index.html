@@ -140,11 +140,38 @@ button.qzopt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .qzacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .erbtn:disabled{opacity:.5;cursor:default}
 footer{color:var(--muted);font-size:13px}
+.app{display:flex;gap:28px;max-width:1280px;margin:0 auto;align-items:flex-start}
+.app .wrap{margin:0;flex:1;min-width:0;max-width:980px}
+.sidebar{width:232px;flex:none;position:sticky;top:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 32px);overflow:auto}
+.sidebar .brand{font-family:var(--display);font-weight:700;font-size:15px;padding:8px 10px 10px;color:var(--accent)}
+.sidebar a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--fg);text-decoration:none;font-size:14px;white-space:nowrap}
+.sidebar a:hover{background:var(--accent-soft)}
+.sidebar a.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.sidebar svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar hr{border:0;border-top:1px solid var(--line);margin:8px 4px}
+.sidebar .ext{color:var(--muted)}
+@media (max-width:860px){.app{flex-direction:column;gap:16px}.sidebar{width:100%;position:static;flex-direction:row;overflow-x:auto;max-height:none;padding:6px}.sidebar .brand,.sidebar hr{display:none}.sidebar a{padding:8px 12px}}
+.logform{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:10px}
+.logform label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.logform input{font:inherit;font-size:15px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px;min-width:0}
+.dots{display:flex;gap:8px;margin-top:8px}
+.dots span{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)}
+.dots span.on{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700}
+.dots span.today{border-color:var(--accent)}
+.hb{display:grid;grid-template-columns:minmax(120px,200px) 1fr 44px;gap:10px;align-items:center;margin-top:8px;font-size:14px}
+.hb .t{height:12px;background:var(--line);border-radius:6px;overflow:hidden}
+.hb .t i{display:block;height:100%;background:var(--accent)}
+.hb .t i.q{background:var(--warn)}
+.metacard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+.metacard .task{display:flex;gap:10px;align-items:flex-start}
+
 </style>
 <style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}</style>
 </head>
 <body>
 
+<div class="app">
+<aside class="sidebar" id="sidebar" aria-label="Menu"></aside>
 <div class="wrap" id="topo">
 <header>
 <h1>Plano PCIES Assistente de Perícia</h1>
@@ -155,17 +182,15 @@ footer{color:var(--muted);font-size:13px}
 </div>
 </header>
 
-<nav class="nav" aria-label="Telas">
-<a class="on" href="#inicio" data-go="inicio">Início</a>
-<a href="#cronograma" data-go="cronograma">Cronograma semanal</a>
-<a href="#questoes" data-go="questoes">Questões</a>
-<a href="#caderno-de-erros" data-go="caderno-de-erros">Caderno de erros</a>
-<a href="#mapa-mental" data-go="mapa-mental">Mapa mental</a>
-<a href="#cadernos" data-go="cadernos">Cadernos de questões</a>
-<a href="#analise" data-go="analise">Análise do curso</a>
-</nav>
+
 
 <div class="view" id="v-inicio">
+<section class="stats" aria-label="Seu ritmo">
+<div class="stat"><b id="s-dias">0</b><span>dias estudando</span></div>
+<div class="stat"><b id="s-horas">0h</b><span>horas estudando</span></div>
+<div class="stat"><b id="s-seq">0</b><span>dias de sequência</span></div>
+<div class="stat"><b id="s-taxa">-</b><span>taxa de acerto</span></div>
+</section>
 <section>
 <h2>Visão geral</h2>
 <div class="kpis">
@@ -203,6 +228,67 @@ footer{color:var(--muted);font-size:13px}
 <section class="note">
 <p><b>Edital:</b> ainda não saiu. A lei de carreira chama o cargo de <b>Assistente de Perícia</b>, então confira o nome quando publicarem. Só vale o edital oficial.</p>
 <p><b>Plano do site:</b> a aba "Plano de estudos" já tem 16 semanas de 2 horas por dia, e este cronograma segue a mesma ordem. O que mudei: Português reforçado, a semana 1 ajustada ao que você já fez e as matérias que ficaram de fora estão nas semanas extras.</p>
+</section>
+</div>
+
+<div class="view" id="v-metas" hidden>
+<section>
+<h2>Metas diárias</h2>
+<p class="sub" id="m-sub"></p>
+<div class="metacard" style="margin-top:12px"><label class="task" id="m-task"></label></div>
+<div class="btns" id="m-days" style="margin-top:12px"></div>
+</section>
+<section>
+<h2>Registro do dia</h2>
+<p class="sub">Anote o que você fez hoje. É daqui que saem os números do topo do Início, os dias de sequência e a taxa de acerto.</p>
+<div class="logform">
+<label>Questões feitas<input type="number" min="0" id="l-q" inputmode="numeric"></label>
+<label>Acertos<input type="number" min="0" id="l-a" inputmode="numeric"></label>
+<label>Minutos estudados<input type="number" min="0" id="l-m" inputmode="numeric"></label>
+</div>
+<div class="btns"><a class="btn" href="#" id="l-save">Salvar o dia de hoje</a></div>
+<p class="sub" id="l-msg"></p>
+<h3 style="margin-top:18px">Sequência dos últimos 7 dias</h3>
+<div class="dots" id="m-dots"></div>
+</section>
+</div>
+
+<div class="view" id="v-resumo" hidden>
+<section>
+<h2>Resumo da semana</h2>
+<p class="sub" id="r-sub"></p>
+<div class="stats" style="margin-top:12px">
+<div class="stat"><b id="r-q">0</b><span>questões nesta semana (seg a dom)</span></div>
+<div class="stat"><b id="r-t">-</b><span>taxa de acerto</span></div>
+<div class="stat"><b id="r-h">0h</b><span>horas estudadas</span></div>
+<div class="stat"><b id="r-d">0 de 7</b><span>dias do plano feitos</span></div>
+</div>
+<div id="r-days" style="display:flex;flex-direction:column;gap:8px;margin-top:14px"></div>
+</section>
+</div>
+
+<div class="view" id="v-desempenho" hidden>
+<section>
+<h2>Meu desempenho</h2>
+<p class="sub">Tudo vem do que você anota no Registro do dia, em Metas diárias. Para o detalhe por assunto, use a aba Estatísticas do caderno no TEC.</p>
+<div class="stats" style="margin-top:12px">
+<div class="stat"><b id="p-q">0</b><span>questões registradas</span></div>
+<div class="stat"><b id="p-t">-</b><span>taxa de acerto</span></div>
+<div class="stat"><b id="p-h">0h</b><span>horas estudadas</span></div>
+<div class="stat"><b id="p-d">0</b><span>dias com registro</span></div>
+</div>
+<h3 style="margin-top:18px">Últimos 14 dias</h3>
+<div id="p-bars"></div>
+<p class="sub" id="p-meta"></p>
+</section>
+</div>
+
+<div class="view" id="v-prio" hidden>
+<section>
+<h2>Prioridades</h2>
+<p class="sub">Quantas questões de cada assunto de Português caíram no caderno PCIES 3 do Mapa da Prova (Português). Quanto maior a barra, mais vale estudar cedo. É o único recorte que já medi com números; as outras matérias entram quando eu contar os cadernos delas.</p>
+<div id="pr-bars" style="margin-top:12px"></div>
+<div class="note" style="margin-top:14px"><p><b>Como usar:</b> o plano de Português começa por Morfologia, que é a base de tudo. Interpretação, Semântica e Reescrita pesam muito nas provas e entram nas semanas 9 a 11. Se o edital sair com outro peso, ele manda.</p></div>
 </section>
 </div>
 
@@ -427,6 +513,7 @@ footer{color:var(--muted);font-size:13px}
 </div>
 
 <footer>Fontes: o curso e o plano de estudos da Nova Concursos, os cadernos do Mapa da Prova e notícias sobre o concurso da Polícia Científica do ES. Só vale o edital oficial publicado no Diário Oficial.</footer>
+</div>
 </div>
 
 <script>
@@ -994,11 +1081,58 @@ build();
 </script>
 <script>
 (function(){
-var VIEWS={"inicio":"v-inicio","cronograma":"v-cronograma","questoes":"v-questoes","caderno-de-erros":"v-erros","mapa-mental":"v-mapa","cadernos":"v-cadernos","analise":"v-analise"};
+var VIEWS={"inicio":"v-inicio","cronograma":"v-cronograma","questoes":"v-questoes","caderno-de-erros":"v-erros","mapa-mental":"v-mapa","cadernos":"v-cadernos","analise":"v-analise","metas-diarias":"v-metas","resumo-da-semana":"v-resumo","meu-desempenho":"v-desempenho","prioridades":"v-prio"};
 function $(id){return document.getElementById(id)}
 function readLS(k,def){try{var v=JSON.parse(localStorage.getItem(k));return v==null?def:v}catch(e){return def}}
 function li(pillTxt,txt,done){var l=document.createElement("li");var p=document.createElement("span");p.className="pill"+(done?" done":"");p.textContent=pillTxt;var s=document.createElement("span");s.textContent=txt;l.appendChild(p);l.appendChild(s);return l}
-function renderDash(){
+var LOGK="plano-pcies-log-v1";
+function getLog(){var l=readLS(LOGK,{});return l&&typeof l==="object"&&!Array.isArray(l)?l:{}}
+function dkey(d){var m=d.getMonth()+1,dd=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(dd<10?"0":"")+dd}
+function shiftDay(d,n){return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n)}
+function dayIdx(d){return (d.getDay()+6)%7}
+function worked(e){return !!e&&((+e.m||0)>0||(+e.q||0)>0)}
+function totals(){var l=getLog(),q=0,a=0,m=0,n=0;Object.keys(l).forEach(function(k){var e=l[k];if(worked(e)){n++;q+=+e.q||0;a+=+e.a||0;m+=+e.m||0}});return {q:q,a:a,m:m,n:n}}
+function streak(){var l=getLog(),d=new Date(),c=0;if(!worked(l[dkey(d)]))d=shiftDay(d,-1);while(worked(l[dkey(d)])){c++;d=shiftDay(d,-1)}return c}
+function fmtH(m){var h=m/60;return (h>=10?Math.round(h):Math.round(h*10)/10).toString().replace(".",",")+"h"}
+function pctTxt(a,q){return q>0?(Math.round(a*1000/q)/10).toString().replace(".",",")+"%":"-"}
+function curWeek(){var wk=firstOpen();return wk>=W.length?W.length-1:wk}
+function renderTop(){var t=totals();$("s-dias").textContent=t.n;$("s-horas").textContent=fmtH(t.m);$("s-seq").textContent=streak();$("s-taxa").textContent=pctTxt(t.a,t.q)}
+var metaDay=null;
+function renderMetas(){
+  var wk=curWeek(),d=new Date(),k=metaDay==null?dayIdx(d):metaDay,l=getLog(),key=dkey(d);
+  $("m-sub").textContent="Semana "+(wk+1)+", "+W[wk][0]+". Escolha o dia e marque quando terminar.";
+  var lab=$("m-task");lab.innerHTML="";
+  var texts=dayTexts(wk,W[wk]);
+  var cb=document.createElement("input");cb.type="checkbox";cb.checked=!!state[wk+"-d"+k];
+  cb.addEventListener("change",function(){state[wk+"-d"+k]=cb.checked;save();renderMetas()});
+  var sp=document.createElement("span");var bn=document.createElement("b");bn.textContent=DAYS[k]+(k===dayIdx(d)&&metaDay==null?" (hoje): ":": ");sp.appendChild(bn);richText(sp,texts[k]);
+  lab.appendChild(cb);lab.appendChild(sp);
+  var bx=$("m-days");bx.innerHTML="";
+  DAYS.forEach(function(n,i){var a=document.createElement("a");a.href="#";a.className="btn"+(i===k?"":" alt");a.textContent=n.slice(0,3);a.addEventListener("click",function(e){e.preventDefault();metaDay=i;renderMetas()});bx.appendChild(a)});
+  var e=l[key]||{};$("l-q").value=e.q!=null?e.q:"";$("l-a").value=e.a!=null?e.a:"";$("l-m").value=e.m!=null?e.m:"";
+  var dots=$("m-dots");dots.innerHTML="";
+  for(var i=6;i>=0;i--){var dd=shiftDay(new Date(),-i);var sp2=document.createElement("span");sp2.textContent=["D","S","T","Q","Q","S","S"][dd.getDay()];sp2.className=(worked(l[dkey(dd)])?"on":"")+(i===0?" today":"");dots.appendChild(sp2)}
+}
+function renderResumo(){
+  var wk=curWeek();$("r-sub").textContent="Semana "+(wk+1)+": "+W[wk][0]+". Os números de questões e horas são da semana corrente do calendário, de segunda a domingo.";
+  var l=getLog(),now=new Date(),mon=shiftDay(now,-dayIdx(now)),q=0,a=0,m=0;
+  for(var i=0;i<7;i++){var e=l[dkey(shiftDay(mon,i))];if(worked(e)){q+=+e.q||0;a+=+e.a||0;m+=+e.m||0}}
+  $("r-q").textContent=q;$("r-t").textContent=pctTxt(a,q);$("r-h").textContent=fmtH(m);
+  var tx=dayTexts(wk,W[wk]),done=0,box=$("r-days");box.innerHTML="";
+  tx.forEach(function(t,k){var ok=!!state[wk+"-d"+k];if(ok)done++;var c=document.createElement("div");c.className="metacard";var lb=document.createElement("label");lb.className="task";var cb=document.createElement("input");cb.type="checkbox";cb.checked=ok;cb.addEventListener("change",function(){state[wk+"-d"+k]=cb.checked;save();renderResumo()});var sp=document.createElement("span");var b=document.createElement("b");b.textContent=DAYS[k]+": ";sp.appendChild(b);richText(sp,t);lb.appendChild(cb);lb.appendChild(sp);c.appendChild(lb);box.appendChild(c)});
+  $("r-d").textContent=done+" de 7";
+}
+function renderDesemp(){
+  var t=totals(),l=getLog();$("p-q").textContent=t.q;$("p-t").textContent=pctTxt(t.a,t.q);$("p-h").textContent=fmtH(t.m);$("p-d").textContent=t.n;
+  var box=$("p-bars");box.innerHTML="";var mx=1,rows=[];
+  for(var i=13;i>=0;i--){var d=shiftDay(new Date(),-i),e=l[dkey(d)]||{};rows.push({d:d,q:+e.q||0,a:+e.a||0});mx=Math.max(mx,+e.q||0)}
+  rows.forEach(function(r){var row=document.createElement("div");row.className="hb";var n=document.createElement("span");n.textContent=("0"+r.d.getDate()).slice(-2)+"/"+("0"+(r.d.getMonth()+1)).slice(-2)+" "+DAYS[dayIdx(r.d)].slice(0,3);var tr=document.createElement("div");tr.className="t";var f=document.createElement("i");f.style.width=Math.round(r.q*100/mx)+"%";if(r.q&&r.a*100/r.q<70)f.className="q";tr.appendChild(f);var v=document.createElement("span");v.textContent=r.q?pctTxt(r.a,r.q):"";row.appendChild(n);row.appendChild(tr);row.appendChild(v);box.appendChild(row)});
+  $("p-meta").textContent="A barra mostra quantas questões você fez no dia. Fica âmbar quando o acerto do dia ficou abaixo de 70%, a meta do plano.";
+}
+var PRIO=[["Interpretação de textos",111],["Semântica",91],["Morfologia",52],["Reescrita de textos",51],["Ortografia",33],["Pontuação",32],["Coesão e coerência",32],["Análise sintática",20],["Concordância",18],["Crase",15],["Regência",9],["Colocação pronominal",4]];
+function renderPrio(){var box=$("pr-bars");box.innerHTML="";var mx=PRIO[0][1];PRIO.forEach(function(p){var row=document.createElement("div");row.className="hb";var n=document.createElement("span");n.textContent=p[0];var tr=document.createElement("div");tr.className="t";var f=document.createElement("i");f.style.width=Math.round(p[1]*100/mx)+"%";tr.appendChild(f);var v=document.createElement("span");v.textContent=p[1];row.appendChild(n);row.appendChild(tr);row.appendChild(v);box.appendChild(row)})}
+$("l-save").addEventListener("click",function(e){e.preventDefault();var q=Math.max(0,parseInt($("l-q").value,10)||0),a=Math.max(0,parseInt($("l-a").value,10)||0),m=Math.max(0,parseInt($("l-m").value,10)||0);if(a>q){$("l-msg").textContent="Os acertos não podem passar das questões feitas.";return}var l=getLog();l[dkey(new Date())]={q:q,a:a,m:m};try{localStorage.setItem(LOGK,JSON.stringify(l))}catch(x){}$("l-msg").textContent="Salvo. Bom trabalho hoje.";renderMetas();renderTop()});
+function renderDash(){renderTop();
   var tot=16*T.length,done=0,i,j;
   for(i=0;i<16;i++)for(j=0;j<T.length;j++)if(state[i+"-"+j])done++;
   var pct=Math.round(done*100/tot);
@@ -1018,10 +1152,38 @@ function renderDash(){
 function show(name){
   if(!VIEWS[name])name="inicio";
   Object.keys(VIEWS).forEach(function(k){$(VIEWS[k]).hidden=(k!==name)});
-  document.querySelectorAll(".nav a").forEach(function(a){a.classList.toggle("on",a.getAttribute("data-go")===name)});
+  document.querySelectorAll(".sidebar a[data-go]").forEach(function(a){a.classList.toggle("on",a.getAttribute("data-go")===name)});
   if(name==="inicio")renderDash();
+  if(name==="metas-diarias")renderMetas();
+  if(name==="resumo-da-semana")renderResumo();
+  if(name==="meu-desempenho")renderDesemp();
+  if(name==="prioridades")renderPrio();
   window.scrollTo(0,0);
 }
+(function(){
+  var IC={
+    metas:'<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+    inicio:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    cron:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+    resumo:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
+    quest:'<polyline points="20 6 9 17 4 12"/>',
+    desemp:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+    prio:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    erros:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+    mapa:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>',
+    cad:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+    book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    ext:'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>'
+  };
+  var IT=[["metas-diarias","Metas diárias","metas"],["inicio","Início","inicio"],["cronograma","Cronograma semanal","cron"],["resumo-da-semana","Resumo da semana","resumo"],["questoes","Questões","quest"],["meu-desempenho","Meu desempenho","desemp"],["prioridades","Prioridades","prio"],["caderno-de-erros","Caderno de erros","erros"],["mapa-mental","Mapa mental","mapa"],["cadernos","Cadernos de questões","cad"],["analise","Análise do curso","book"]];
+  var EX=[["https://aluno.novaconcursos.com.br/#/curso-detalhes/18984","Curso na Nova"],["https://www.tecconcursos.com.br/questoes/pastas/8120226","Cadernos no TEC"],["https://www.mapadaprova.com.br/area-estudante/cadernos","Mapa da Prova"]];
+  var sb=document.getElementById("sidebar");
+  function svg(p){var w=document.createElement("span");w.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';return w.firstChild}
+  var br=document.createElement("div");br.className="brand";br.textContent="Plano PCIES";sb.appendChild(br);
+  IT.forEach(function(x){var a=document.createElement("a");a.href="#"+x[0];a.setAttribute("data-go",x[0]);a.appendChild(svg(IC[x[2]]));a.appendChild(document.createTextNode(x[1]));sb.appendChild(a)});
+  sb.appendChild(document.createElement("hr"));
+  EX.forEach(function(x){var a=document.createElement("a");a.className="ext";a.href=x[0];a.target="_blank";a.rel="noopener";a.appendChild(svg(IC.ext));a.appendChild(document.createTextNode(x[1]));sb.appendChild(a)});
+})();
 document.querySelectorAll("[data-go]").forEach(function(a){
   a.addEventListener("click",function(e){
     e.preventDefault();var n=a.getAttribute("data-go");
