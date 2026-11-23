@@ -304,13 +304,16 @@ footer{color:var(--muted);font-size:13px}
 </div>
 </section>
 <section>
-<h2>1. Monte a prova no TEC</h2>
-<p class="sub">Crie um caderno novo com estas quantidades, só com questões que você ainda não resolveu. Use o caderno PCIES 2 (todas as provas) e os cadernos de cada matéria como fonte, e escolha as questões em ordem aleatória.</p>
+<h2>1. Abra o simulado da semana</h2>
+<p class="sub">Os 20 simulados já estão prontos na sua pasta do TEC, cada um com 100 questões sorteadas de provas da área policial, nesta proporção por matéria. É só abrir, fazer e voltar aqui para lançar o resultado.</p>
+<div class="btns"><a class="btn" id="sm-open" href="#" target="_blank" rel="noopener">Abrir o simulado</a></div>
+<p class="sub" id="sm-open-sub"></p>
+<details style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">Todos os simulados</summary><div id="sm-links" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"></div></details>
 <div class="tbl"><table>
 <thead><tr><th>Matéria</th><th>Questões</th></tr></thead>
 <tbody id="sm-quota"></tbody>
 </table></div>
-<div class="note" style="margin-top:12px"><p><b>Dica:</b> nas primeiras semanas você ainda não viu várias matérias. Mesmo assim faça o simulado completo: o resultado mostra a distância até a prova, e a nota sobe a cada semana.</p></div>
+<div class="note" style="margin-top:12px"><p><b>Atenção:</b> os simulados foram sorteados de um mesmo grupo de questões, então uma ou outra pode se repetir entre eles.</p><p><b>Dica:</b> nas primeiras semanas você ainda não viu várias matérias. Mesmo assim faça o simulado completo: o resultado mostra a distância até a prova, e a nota sobe a cada semana.</p></div>
 </section>
 <section>
 <h2>2. Faça com cronômetro</h2>
@@ -1201,8 +1204,9 @@ build();
 /* Simulados: 100 questões, 4 h, 1 por semana */
 (function(){
 var SK="plano-pcies-simu-v1",TK="plano-pcies-simu-timer-v1",LOGK="plano-pcies-log-v1";
-var MAT=[["Língua Portuguesa",24],["Informática",12],["Criminalística e Medicina Legal",11],["Direito Constitucional",11],["Direito Administrativo",6],["Estatuto, Segurança Pública e Legislação Policial",6],["Raciocínio Lógico",4],["Direito Penal e Processual Penal",6],["Outras: Legislação Especial, Arquivologia, Atualidades e Química",20]];
-var TOT=100;
+var MAT=[["Língua Portuguesa",24],["Informática",12],["Criminalística e Medicina Legal",11],["Direito Constitucional",11],["Direito Administrativo",6],["Estatuto, Segurança Pública e Legislação Policial",6],["Raciocínio Lógico",4],["Direito Penal (3) e Processual Penal (3)",6],["Outras: Arquivologia (5) e Atualidades (15)",20]];
+var TOT=100,IDS=[109550930,109550944,109550954,109550964,109550971,109551202,109551210,109551226,109551233,109551242,109551255,109551262,109551273,109551293,109551301,109551306,109551319,109551328,109551334,109551348];
+function turl(n){return "https://www.tecconcursos.com.br/questoes/cadernos/"+IDS[n-1]}
 function $(id){return document.getElementById(id)}
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
@@ -1250,6 +1254,9 @@ function save(){
 }
 function render(){
   var l=lst();$("sm-n").textContent=l.length+1;
+  var nx=Math.min(l.length+1,IDS.length),op=$("sm-open");op.href=turl(nx);op.textContent="Abrir o simulado "+nx+" no TEC";
+  $("sm-open-sub").textContent=l.length>=IDS.length?"Você já fez todos os simulados prontos. Peça novos e eu gero mais.":"Sugestão: faça no último dia da semana, sem consultar nada, e lance o resultado abaixo.";
+  var lk=$("sm-links");lk.innerHTML="";IDS.forEach(function(id,i){var a=document.createElement("a");a.className="btn"+(i<l.length?" alt":"");a.href=turl(i+1);a.target="_blank";a.rel="noopener";a.textContent=(i<l.length?"✓ ":"")+"Simulado "+(i+1);lk.appendChild(a)});
   var h=$("sm-hist");h.innerHTML="";var mt=$("sm-mat");mt.innerHTML="";
   if(!l.length){var p=document.createElement("p");p.className="sub";p.textContent="Nenhum simulado ainda. Faça o primeiro e lance o resultado acima.";h.appendChild(p);$("sm-tip").textContent="";return}
   var st=document.createElement("div");st.className="stats";
