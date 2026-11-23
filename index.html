@@ -292,6 +292,63 @@ footer{color:var(--muted);font-size:13px}
 </section>
 </div>
 
+<div class="view" id="v-simu" hidden>
+<section>
+<h2>Simulados</h2>
+<p class="sub">Um simulado por semana, no formato de uma prova de verdade: 100 questões, 4 horas, com as matérias na proporção das provas anteriores de Auxiliar da PC-ES (2006, 2011 e 2019). Sem consultar nada. O ideal é fazer no último dia da semana e usar a correção como a revisão do dia.</p>
+<div class="stats" style="margin-top:12px">
+<div class="stat"><b id="sm-n">1</b><span>próximo simulado</span></div>
+<div class="stat"><b>100</b><span>questões</span></div>
+<div class="stat"><b id="sm-dur">4h</b><span>de prova</span></div>
+<div class="stat"><b>70%</b><span>meta de acerto do plano</span></div>
+</div>
+</section>
+<section>
+<h2>1. Monte a prova no TEC</h2>
+<p class="sub">Crie um caderno novo com estas quantidades, só com questões que você ainda não resolveu. Use o caderno PCIES 2 (todas as provas) e os cadernos de cada matéria como fonte, e escolha as questões em ordem aleatória.</p>
+<div class="tbl"><table>
+<thead><tr><th>Matéria</th><th>Questões</th></tr></thead>
+<tbody id="sm-quota"></tbody>
+</table></div>
+<div class="note" style="margin-top:12px"><p><b>Dica:</b> nas primeiras semanas você ainda não viu várias matérias. Mesmo assim faça o simulado completo: o resultado mostra a distância até a prova, e a nota sobe a cada semana.</p></div>
+</section>
+<section>
+<h2>2. Faça com cronômetro</h2>
+<p class="sub">Inicie quando abrir a prova. O tempo segue contando mesmo se você sair desta aba. Ele fica âmbar nos últimos 30 minutos.</p>
+<div class="stats" style="margin-top:12px">
+<div class="stat"><b id="sm-clock" style="font-size:34px">04:00:00</b><span id="sm-clock-sub">tempo restante</span></div>
+</div>
+<div class="btns">
+<button type="button" class="erbtn" id="sm-start">Iniciar</button>
+<button type="button" class="erbtn ghost" id="sm-pause">Pausar</button>
+<button type="button" class="erbtn danger" id="sm-reset">Zerar</button>
+</div>
+<div class="logform" style="margin-top:12px;max-width:260px">
+<label>Duração da prova, em minutos<input type="number" min="30" max="480" id="sm-limit" inputmode="numeric" value="240"></label>
+</div>
+</section>
+<section>
+<h2>3. Lance o resultado</h2>
+<p class="sub">Corrija pelo gabarito do TEC e digite quantas você acertou em cada matéria. O máximo de cada campo é o número de questões da matéria.</p>
+<div class="logform" id="sm-form"></div>
+<div class="logform" style="margin-top:12px">
+<label>Data<input type="date" id="sm-date"></label>
+<label>Tempo gasto, em minutos<input type="number" min="0" id="sm-used" inputmode="numeric"></label>
+</div>
+<p style="margin:12px 0 0"><label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="sm-sum" checked style="accent-color:var(--accent);width:16px;height:16px"> Somar ao Registro do dia (100 questões, os acertos e o tempo)</label></p>
+<div class="btns"><button type="button" class="erbtn" id="sm-save">Salvar simulado</button></div>
+<p class="sub" id="sm-msg"></p>
+</section>
+<section>
+<h2>Seus simulados</h2>
+<div id="sm-hist"></div>
+<h3 style="margin-top:18px">Média por matéria</h3>
+<p class="sub">Âmbar: abaixo de 70%. As duas mais fracas são o foco da semana seguinte.</p>
+<div id="sm-mat"></div>
+<p class="sub" id="sm-tip"></p>
+</section>
+</div>
+
 <div class="view" id="v-analise" hidden>
 <section>
 <h2>O que o curso tem e o que o plano cobre</h2>
@@ -1141,8 +1198,100 @@ build();
 })();
 </script>
 <script>
+/* Simulados: 100 questões, 4 h, 1 por semana */
 (function(){
-var VIEWS={"inicio":"v-inicio","cronograma":"v-cronograma","questoes":"v-questoes","caderno-de-erros":"v-erros","mapa-mental":"v-mapa","cadernos":"v-cadernos","analise":"v-analise","metas-diarias":"v-metas","resumo-da-semana":"v-resumo","meu-desempenho":"v-desempenho","prioridades":"v-prio"};
+var SK="plano-pcies-simu-v1",TK="plano-pcies-simu-timer-v1",LOGK="plano-pcies-log-v1";
+var MAT=[["Língua Portuguesa",24],["Informática",12],["Criminalística e Medicina Legal",11],["Direito Constitucional",11],["Direito Administrativo",6],["Estatuto, Segurança Pública e Legislação Policial",6],["Raciocínio Lógico",4],["Direito Penal e Processual Penal",6],["Outras: Legislação Especial, Arquivologia, Atualidades e Química",20]];
+var TOT=100;
+function $(id){return document.getElementById(id)}
+function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function lst(){var l=rd(SK,[]);return Array.isArray(l)?l:[]}
+function pc(a,q){return q>0?Math.round(a*1000/q)/10:0}
+function tx(p){return String(p).replace(".",",")+"%"}
+function p2(n){return (n<10?"0":"")+n}
+function fmt(s){s=Math.max(0,Math.round(s));return p2(Math.floor(s/3600))+":"+p2(Math.floor(s%3600/60))+":"+p2(s%60)}
+function todayIso(){var d=new Date();return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
+function brDate(iso){var m=/^(\d+)-(\d+)-(\d+)$/.exec(iso||"");return m?m[3]+"/"+m[2]+"/"+m[1]:"-"}
+var tm=rd(TK,null);
+if(!tm||typeof tm!=="object"||!(tm.lim>0))tm={lim:14400,rem:14400,run:false,last:0};
+function saveTm(){wr(TK,tm)}
+function tick(){
+  if(tm.run){var n=Date.now();tm.rem-=(n-tm.last)/1000;tm.last=n;if(tm.rem<=0){tm.rem=0;tm.run=false}saveTm()}
+  var c=$("sm-clock");if(!c)return;
+  c.textContent=fmt(tm.rem);c.style.color=tm.rem>0&&tm.rem<=1800?"var(--warn)":"";
+  $("sm-clock-sub").textContent=tm.rem<=0?"tempo esgotado":(tm.run?"tempo restante, correndo":(tm.rem<tm.lim?"pausado":"tempo restante"));
+  $("sm-start").disabled=tm.run||tm.rem<=0;$("sm-pause").disabled=!tm.run;
+}
+setInterval(tick,1000);
+function setLimit(min){min=Math.max(30,Math.min(480,parseInt(min,10)||240));tm.lim=min*60;tm.rem=tm.lim;saveTm();$("sm-dur").textContent=(min%60===0?(min/60)+"h":Math.floor(min/60)+"h"+p2(min%60));tick()}
+var armed={};
+function twoStep(btn,key,label,fn){btn.addEventListener("click",function(){if(armed[key]){clearTimeout(armed[key]);armed[key]=null;btn.textContent=label;fn();return}btn.textContent="Confirmar?";armed[key]=setTimeout(function(){armed[key]=null;btn.textContent=label},3000)})}
+function build(){
+  var q=$("sm-quota");q.innerHTML="";
+  MAT.forEach(function(m){var tr=document.createElement("tr");var a=document.createElement("td");a.textContent=m[0];var b=document.createElement("td");b.className="n";b.textContent=m[1];tr.appendChild(a);tr.appendChild(b);q.appendChild(tr)});
+  var tr=document.createElement("tr");var a=document.createElement("td");var bb=document.createElement("b");bb.textContent="Total";a.appendChild(bb);var b=document.createElement("td");b.className="n";b.textContent=TOT;tr.appendChild(a);tr.appendChild(b);q.appendChild(tr);
+  var f=$("sm-form");f.innerHTML="";
+  MAT.forEach(function(m,i){var l=document.createElement("label");l.appendChild(document.createTextNode(m[0]+" (0 a "+m[1]+")"));var inp=document.createElement("input");inp.type="number";inp.min="0";inp.max=m[1];inp.id="sm-m"+i;inp.setAttribute("inputmode","numeric");l.appendChild(inp);f.appendChild(l)});
+  $("sm-date").value=todayIso();
+}
+function save(){
+  var r=[],tot=0,bad=null;
+  MAT.forEach(function(m,i){var v=$("sm-m"+i).value;if(v===""){bad="Preencha os acertos de "+m[0]+". Se não acertou nenhuma, digite 0.";return}var n=parseInt(v,10);if(isNaN(n)||n<0||n>m[1]){bad="Em "+m[0]+" o valor vai de 0 a "+m[1]+".";return}r.push(n);tot+=n});
+  if(bad){$("sm-msg").textContent=bad;return}
+  var used=parseInt($("sm-used").value,10);if(isNaN(used)||used<0)used=tm.rem<tm.lim?Math.round((tm.lim-tm.rem)/60):0;
+  var date=$("sm-date").value||todayIso();
+  var l=lst();l.push({id:Date.now(),d:date,r:r,tot:tot,used:used});wr(SK,l);
+  if($("sm-sum").checked){var lg=rd(LOGK,{});if(!lg||typeof lg!=="object"||Array.isArray(lg))lg={};var e=lg[date]||{q:0,a:0,m:0};e.q=(+e.q||0)+TOT;e.a=(+e.a||0)+tot;e.m=(+e.m||0)+used;lg[date]=e;wr(LOGK,lg)}
+  tm.rem=tm.lim;tm.run=false;tm.last=0;saveTm();
+  MAT.forEach(function(m,i){$("sm-m"+i).value=""});$("sm-used").value="";
+  $("sm-msg").textContent="Salvo: "+tot+" de "+TOT+" ("+tx(pc(tot,TOT))+"). Agora anote os erros no Caderno de erros e refaça as que errou.";
+  render();
+}
+function render(){
+  var l=lst();$("sm-n").textContent=l.length+1;
+  var h=$("sm-hist");h.innerHTML="";var mt=$("sm-mat");mt.innerHTML="";
+  if(!l.length){var p=document.createElement("p");p.className="sub";p.textContent="Nenhum simulado ainda. Faça o primeiro e lance o resultado acima.";h.appendChild(p);$("sm-tip").textContent="";return}
+  var st=document.createElement("div");st.className="stats";
+  function stat(b,s){var d=document.createElement("div");d.className="stat";var x=document.createElement("b");x.textContent=b;var y=document.createElement("span");y.textContent=s;d.appendChild(x);d.appendChild(y);st.appendChild(d)}
+  var last=l[l.length-1],best=l.reduce(function(a,b){return b.tot>a.tot?b:a},l[0]);
+  stat(tx(pc(last.tot,TOT)),"último simulado ("+last.tot+" de "+TOT+")");
+  if(l.length>1){var df=Math.round((last.tot-l[l.length-2].tot)*10)/10;stat((df>0?"+":"")+String(df).replace(".",",")+" pts","comparado com o anterior")}
+  stat(tx(pc(best.tot,TOT)),"melhor resultado");
+  h.appendChild(st);
+  var box=document.createElement("div");box.style.marginTop="12px";
+  l.forEach(function(s,i){var row=document.createElement("div");row.className="hb";var n=document.createElement("span");n.textContent="#"+(i+1)+" "+brDate(s.d);var tr=document.createElement("div");tr.className="t";var f=document.createElement("i");f.style.width=pc(s.tot,TOT)+"%";if(pc(s.tot,TOT)<70)f.className="q";tr.appendChild(f);var v=document.createElement("span");v.textContent=s.tot;row.appendChild(n);row.appendChild(tr);row.appendChild(v);box.appendChild(row)});
+  h.appendChild(box);
+  var tb=document.createElement("div");tb.className="tbl";var t=document.createElement("table");
+  var th=document.createElement("thead");var hr=document.createElement("tr");["Simulado","Data","Nota","Tempo","Mais fraca",""].forEach(function(x){var c=document.createElement("th");c.textContent=x;hr.appendChild(c)});th.appendChild(hr);t.appendChild(th);
+  var tbd=document.createElement("tbody");
+  l.slice().reverse().forEach(function(s,ri){var i=l.length-1-ri;var tr=document.createElement("tr");
+    var w=0,wp=101;s.r.forEach(function(a,k){var p=pc(a,MAT[k][1]);if(p<wp){wp=p;w=k}});
+    [["#"+(i+1)],[brDate(s.d)],[s.tot+" de "+TOT+" ("+tx(pc(s.tot,TOT))+")"],[s.used?Math.floor(s.used/60)+"h"+p2(s.used%60):"-"],[MAT[w][0].split(":")[0]+" ("+tx(wp)+")"]].forEach(function(c){var td=document.createElement("td");td.textContent=c[0];tr.appendChild(td)});
+    var td=document.createElement("td");var b=document.createElement("button");b.type="button";b.className="erbtn danger";b.textContent="Remover";
+    (function(id,btn){btn.addEventListener("click",function(){if(btn.dataset.a){var x=lst().filter(function(z){return z.id!==id});wr(SK,x);render();return}btn.dataset.a=1;btn.textContent="Confirmar?";setTimeout(function(){btn.dataset.a="";btn.textContent="Remover"},3000)})})(s.id,b);
+    td.appendChild(b);tr.appendChild(td);tbd.appendChild(tr)});
+  t.appendChild(tbd);tb.appendChild(t);h.appendChild(tb);
+  var avg=MAT.map(function(m,k){var a=0;l.forEach(function(s){a+=s.r[k]});return {n:m[0],p:pc(a,m[1]*l.length)}});
+  avg.forEach(function(x){var row=document.createElement("div");row.className="hb";var n=document.createElement("span");n.textContent=x.n.split(":")[0];var tr=document.createElement("div");tr.className="t";var f=document.createElement("i");f.style.width=x.p+"%";if(x.p<70)f.className="q";tr.appendChild(f);var v=document.createElement("span");v.textContent=tx(x.p);row.appendChild(n);row.appendChild(tr);row.appendChild(v);mt.appendChild(row)});
+  var w2=avg.slice().sort(function(a,b){return a.p-b.p}).slice(0,2);
+  $("sm-tip").textContent="Foco da próxima semana: "+w2.map(function(x){return x.n.split(":")[0]+" ("+tx(x.p)+")"}).join(" e ")+". Use as aulas e os erros dessas matérias antes do próximo simulado.";
+}
+build();
+$("sm-start").addEventListener("click",function(){if(tm.rem<=0)return;tm.run=true;tm.last=Date.now();tm.started=true;saveTm();tick()});
+$("sm-pause").addEventListener("click",function(){tick();tm.run=false;saveTm();tick()});
+twoStep($("sm-reset"),"rs","Zerar",function(){tm.rem=tm.lim;tm.run=false;tm.last=0;tm.started=false;saveTm();tick()});
+$("sm-limit").value=Math.round(tm.lim/60);
+$("sm-limit").addEventListener("change",function(){if(tm.run)return;tm.started=false;setLimit(this.value);this.value=Math.round(tm.lim/60)});
+$("sm-save").addEventListener("click",save);
+$("sm-dur").textContent=(tm.lim%3600===0?(tm.lim/3600)+"h":Math.floor(tm.lim/3600)+"h"+p2(Math.floor(tm.lim%3600/60)));
+window.__renderSimu=function(){render();tick()};
+tick();
+})();
+</script>
+<script>
+(function(){
+var VIEWS={"inicio":"v-inicio","cronograma":"v-cronograma","questoes":"v-questoes","caderno-de-erros":"v-erros","mapa-mental":"v-mapa","cadernos":"v-cadernos","analise":"v-analise","metas-diarias":"v-metas","resumo-da-semana":"v-resumo","meu-desempenho":"v-desempenho","prioridades":"v-prio","simulados":"v-simu"};
 function $(id){return document.getElementById(id)}
 function readLS(k,def){try{var v=JSON.parse(localStorage.getItem(k));return v==null?def:v}catch(e){return def}}
 function li(pillTxt,txt,done){var l=document.createElement("li");var p=document.createElement("span");p.className="pill"+(done?" done":"");p.textContent=pillTxt;var s=document.createElement("span");s.textContent=txt;l.appendChild(p);l.appendChild(s);return l}
@@ -1219,6 +1368,7 @@ function show(name){
   if(name==="resumo-da-semana")renderResumo();
   if(name==="meu-desempenho")renderDesemp();
   if(name==="prioridades")renderPrio();
+  if(name==="simulados"&&window.__renderSimu)window.__renderSimu();
   window.scrollTo(0,0);
 }
 (function(){
@@ -1229,6 +1379,7 @@ function show(name){
     resumo:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
     quest:'<polyline points="20 6 9 17 4 12"/>',
     desemp:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+    sim:'<circle cx="12" cy="13" r="8"/><polyline points="12 9 12 13 14.5 14.5"/><line x1="9" y1="2" x2="15" y2="2"/>',
     prio:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
     erros:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
     mapa:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>',
@@ -1236,7 +1387,7 @@ function show(name){
     book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
     ext:'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>'
   };
-  var IT=[["metas-diarias","Metas diárias","metas"],["inicio","Início","inicio"],["cronograma","Cronograma semanal","cron"],["resumo-da-semana","Resumo da semana","resumo"],["questoes","Questões","quest"],["meu-desempenho","Meu desempenho","desemp"],["prioridades","Prioridades","prio"],["caderno-de-erros","Caderno de erros","erros"],["mapa-mental","Mapa mental","mapa"],["cadernos","Cadernos de questões","cad"],["analise","Análise do curso","book"]];
+  var IT=[["metas-diarias","Metas diárias","metas"],["inicio","Início","inicio"],["cronograma","Cronograma semanal","cron"],["resumo-da-semana","Resumo da semana","resumo"],["questoes","Questões","quest"],["simulados","Simulados","sim"],["meu-desempenho","Meu desempenho","desemp"],["prioridades","Prioridades","prio"],["caderno-de-erros","Caderno de erros","erros"],["mapa-mental","Mapa mental","mapa"],["cadernos","Cadernos de questões","cad"],["analise","Análise do curso","book"]];
   var EX=[["https://aluno.novaconcursos.com.br/#/curso-detalhes/18984","Curso na Nova"],["https://www.tecconcursos.com.br/questoes/pastas/8120226","Cadernos no TEC"],["https://www.mapadaprova.com.br/area-estudante/cadernos","Mapa da Prova"]];
   var sb=document.getElementById("sidebar");
   function svg(p){var w=document.createElement("span");w.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';return w.firstChild}
