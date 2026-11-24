@@ -681,24 +681,24 @@ function tecUrl(k){return "https://www.tecconcursos.com.br/questoes/cadernos/"+T
 /* Para cada bloco de questões da semana (mesma ordem de Q): [caderno do TEC, onde fazer] */
 var QT=[
 [["g_pt","Índice, Morfologia"],["c01","questões 1 a 30"]],
-[["g_pt","Índice, Morfologia"],["c02","questões 1 a 30"],["c01","questões 31 a 60"]],
-[["g_pt","Índice, Morfologia"],["c02","questões 31 a 60"],["c01",""]],
-[["g_pt","Índice, Morfologia"],["c02","questões 61 a 90"]],
+[["g_pt","Índice, Morfologia"],["c02","Índice, \"Criminalística (Aspectos Gerais)\" e \"Perícias e Peritos (Criminalística)\""],["c01","questões 31 a 60"]],
+[["g_pt","Índice, Morfologia"],["c02","Índice, \"Provas, Vestígios e Indícios\""],["c01",""]],
+[["g_pt","Índice, Morfologia"],["c02","Índice, \"Locais de Crime\" e \"Documentoscopia Forense\""]],
 [["g_pt","Índice, Morfologia e Sintaxe: orações e Pontuação"],["c03","questões 1 a 30"],["",""]],
 [["g_pt","Índice, Pontuação e Concordância"],["c04","questões 1 a 30"],["",""]],
 [["g_pt","Índice, Concordância e Regência e Crase"],["c05","questões 1 a 30"],["",""]],
-[["g_pt","Índice, Ortografia"],["c10","questões 1 a 30"],["c02","refaça as erradas dos cadernos 02 a 05"]],
+[["g_pt","Índice, Ortografia"],["c10","Índice, \"Windows 10\", dentro de Sistemas Operacionais e Windows"],["c02","refaça as erradas dos cadernos 02 a 05"]],
 [["g_pt","Índice, Ortografia e Coesão e Coerência e Colocação Pronominal e Reescrita de frases"],["c06","questões 1 a 30"]],
 [["g_pt","Índice, Reescrita de frases e Interpretação de Textos"],["c07","questões 1 a 30"]],
 [["g_pt","Índice, Interpretação de Textos"],["c08","questões 1 a 30"]],
 [["g_pt","Índice, os assuntos que você mais errou"],["c09","questões 1 a 30"]],
-[["g_pt","Índice, Interpretação de Textos"],["g_adm","Índice, Poderes, atos, organização e agentes"],["",""]],
-[["g_pt","Índice, Interpretação de Textos"],["g_const","Índice, Direitos e garantias e Administração Pública"]],
+[["g_pt","Índice, Interpretação de Textos"],["g_adm","Índice, \"Atos Administrativos\", \"Poderes e Deveres da Administração\", \"Organização Administrativa\" e \"Agentes Públicos\""],["",""]],
+[["g_pt","Índice, Interpretação de Textos"],["g_const","Índice, \"Dos Direitos e Deveres Individuais e Coletivos\" e \"Administração Pública\""]],
 [["g_pt","refaça as erradas"],["",""],["",""]],
 [["g_pt","refaça as erradas"],["",""],["",""]],
 [["g_pt","o assunto que você mais erra"],["",""]],
-[["g_pt","o assunto que você mais erra"],["g_rl","Índice, lógica proposicional e contagem"]],
-[["g_pt","o assunto que você mais erra"],["c10","questões 31 a 60, refazendo as erradas"]],
+[["g_pt","o assunto que você mais erra"],["g_rl","Índice, \"Lógica de Proposições\" e \"Lógica de Argumentação\""]],
+[["g_pt","o assunto que você mais erra"],["c10","Índice, \"Segurança da Informação\" (Ameaças e Recursos), refazendo as erradas"]],
 [["g_pt","o assunto que você mais erra"],["",""],["",""]],
 [["g_pt","o assunto que você mais erra"],["",""]]
 ];
@@ -767,6 +767,7 @@ function buildQD(){
   function take(key,hint,fixo){
     if(!key||!TEC[key])return null;
     if(/^g_/.test(key))return {k:key,t:"[["+key+"]]"+(hint?" ("+hint+")":"")+", começando pela primeira ainda não resolvida"};
+    if(/^Índice/.test(hint||""))return {k:key,t:"[["+key+"]]: abra a aba Índice (Organizar por Matéria e Assunto) e entre em "+hint.replace(/^Índice,\s*/,"")+", começando pela primeira ainda não resolvida"};
     if(fixo)return {k:key,t:"[["+key+"]] ("+hint+"), e complete 30 questões"};
     var n=TEC[key].q,a=(ptr[key]||0)+1,b=a+29;
     if(a>n)return {k:key,t:"[["+key+"]]: refaça as erradas e complete 30 questões (você já passou pelas "+n+" do caderno)"};
