@@ -352,6 +352,25 @@ footer{color:var(--muted);font-size:13px}
 </section>
 </div>
 
+
+<div class="view" id="v-flash" hidden>
+<section>
+<h2>Flashcards</h2>
+<p class="sub">Cartões de Criminalística e Medicina Legal para 10 minutos por dia. Tente responder de cabeça antes de virar. Cartões feitos de memória: se uma resposta divergir da sua aula ou do texto da lei, vale a aula.</p>
+<div class="logform" style="max-width:260px"><label>Matéria<select id="fc-mat"><option value="">Todas</option><option>Criminalística</option><option>Medicina Legal</option></select></label></div>
+<div class="note" style="margin-top:14px;min-height:120px"><p id="fc-q" style="font-weight:600"></p><p id="fc-a" style="margin-top:10px" hidden></p></div>
+<div class="btns"><button type="button" class="erbtn ghost" id="fc-show">Virar</button><button type="button" class="erbtn" id="fc-ok">Acertei</button><button type="button" class="erbtn danger" id="fc-no">Errei</button></div>
+<p class="sub" id="fc-info"></p>
+</section>
+</div>
+<div class="view" id="v-edital" hidden>
+<section>
+<h2>Quando o edital sair</h2>
+<p class="sub">O plano foi montado antes do edital. Marque cada item quando conferir. Só vale o edital oficial.</p>
+<div id="ed-list" style="margin-top:12px"></div>
+<p class="sub" id="ed-info"></p>
+</section>
+</div>
 <div class="view" id="v-analise" hidden>
 <section>
 <h2>O que o curso tem e o que o plano cobre</h2>
@@ -804,7 +823,11 @@ function cadQ(i,d){var id=CAD[i]&&CAD[i][d];return id?"do caderno do dia ([[cad"
 function ptTop(a){var m=[];String(a||"").split(" | ").forEach(function(x){var r=/Língua Portuguesa > ([^:]+):/.exec(x);if(r&&m.indexOf(r[1])<0)m.push(r[1])});return m.join(" e ")}
 var PTQ=[["Morfologia (Classes de Palavras)","Substantivo","Substantivo e Artigo"],["Adjetivo (e os exercícios de Substantivo e Artigo)","Advérbio","Preposição"],["Pronomes Pessoais","Pronomes Demonstrativos e Pronomes Indefinidos","Pronomes Relativos e Verbo"],["Verbo","Verbo, Numeral e Conjunção","Conjunção"],["Conjunção e Orações Coordenadas","Orações Subordinadas Substantivas, Adjetivas e Adverbiais","Orações Subordinadas e Pontuação"],["Pontuação","Pontuação e Concordância (Verbal e Nominal)","Concordância (Verbal e Nominal)"],["Concordância (Verbal e Nominal) e Regência","Regência","Crase"],["Ortografia","Ortografia","Ortografia"],["Ortografia e Coerência. Coesão","Coerência. Coesão e Colocação Pronominal","Reescrita de Frases. Substituição de Palavras ou Trechos de Texto."],["Reescrita de Frases e Interpretação de Textos (Compreensão)","Interpretação de Textos (Compreensão)","Tipologia e Gênero Textual"],["Tipologia e Gênero Textual"]];
 function ptQ(i,k){var cq=cadQ(i,k*2);if(cq)return cq;var t=(PTQ[i]&&PTQ[i][k])||ptTop(PTA[i]&&PTA[i][k]);return "do assunto da aula: [[g_pt]]. Abra a aba Índice do caderno (Organizar por Matéria e Assunto) e entre em \""+t+"\", começando pela primeira ainda não resolvida"}
-function dayTexts(i,w){
+function dayTexts(i,w){var a=dayTexts0(i,w);if(!a||!a.length)return a;
+  a[6]=a[6]+" Simulado da semana: aba Simulados, 100 questões com cronômetro (4 h). Se faltar tempo, faça metade (2 h) e lance o resultado mesmo assim. Meta: 70% por matéria. A matéria que ficar abaixo de 70% entra no bloco misto da semana seguinte e as erradas voltam na revisão de sexta.";
+  if(i===14||i===15){a[2]=a[2]+" Hoje, no lugar do bloco de questões, faça um simulado completo (aba Simulados, 100 questões em 4 h) e corrija amanhã.";a[3]=a[3]+" Feche lacunas: semana 10 domingo (Outras Medidas Cautelares não tem assunto próprio no TEC) e semana 21 terça (Atualidades sem caderno pronto): no TEC, filtre só esse assunto com Área Policial e resolva 30 questões."}
+  return a}
+function dayTexts0(i,w){
   var P=QDP()[i]||[];
   function qs(k){return P[k]?P[k].t:null}
   if(w[6])return w[6].map(function(x,k){var base=x.replace(/^[^:]*:\s*/,"");var q=(k<6)?qs(k):null;return q&&k!==5?base+" Além disso, 30 questões: "+q+".":base});
@@ -1312,7 +1335,7 @@ tick();
 </script>
 <script>
 (function(){
-var VIEWS={"inicio":"v-inicio","cronograma":"v-cronograma","questoes":"v-questoes","caderno-de-erros":"v-erros","mapa-mental":"v-mapa","cadernos":"v-cadernos","analise":"v-analise","metas-diarias":"v-metas","resumo-da-semana":"v-resumo","meu-desempenho":"v-desempenho","prioridades":"v-prio","simulados":"v-simu"};
+var VIEWS={"inicio":"v-inicio","cronograma":"v-cronograma","questoes":"v-questoes","caderno-de-erros":"v-erros","mapa-mental":"v-mapa","cadernos":"v-cadernos","analise":"v-analise","metas-diarias":"v-metas","resumo-da-semana":"v-resumo","meu-desempenho":"v-desempenho","prioridades":"v-prio","simulados":"v-simu","flashcards":"v-flash","edital":"v-edital"};
 function $(id){return document.getElementById(id)}
 function readLS(k,def){try{var v=JSON.parse(localStorage.getItem(k));return v==null?def:v}catch(e){return def}}
 function li(pillTxt,txt,done){var l=document.createElement("li");var p=document.createElement("span");p.className="pill"+(done?" done":"");p.textContent=pillTxt;var s=document.createElement("span");s.textContent=txt;l.appendChild(p);l.appendChild(s);return l}
@@ -1353,7 +1376,8 @@ function renderResumo(){
   tx.forEach(function(t,k){var ok=!!state[wk+"-d"+k];if(ok)done++;var c=document.createElement("div");c.className="metacard";var lb=document.createElement("label");lb.className="task";var cb=document.createElement("input");cb.type="checkbox";cb.checked=ok;cb.addEventListener("change",function(){state[wk+"-d"+k]=cb.checked;save();renderResumo()});var sp=document.createElement("span");var b=document.createElement("b");b.textContent=DAYS[k]+": ";sp.appendChild(b);richText(sp,t);lb.appendChild(cb);lb.appendChild(sp);c.appendChild(lb);box.appendChild(c)});
   $("r-d").textContent=done+" de 7";
 }
-function renderDesemp(){
+function renderDesemp(){var __t=totals();var __al=document.getElementById("p-alert");if(!__al){__al=document.createElement("div");__al.id="p-alert";__al.className="note";__al.style.marginTop="12px";var __b=document.getElementById("p-bars");__b.parentNode.insertBefore(__al,__b.previousElementSibling)}
+  if(__t.q>=30&&__t.a*100/__t.q<70){__al.hidden=false;__al.textContent="Alerta: seu acerto geral está em "+pctTxt(__t.a,__t.q)+", abaixo da meta de 70%. Reveja na aba Simulados as duas matérias mais fracas e refaça as erradas no Caderno de erros antes de seguir para assunto novo."}else{__al.hidden=true}
   var t=totals(),l=getLog();$("p-q").textContent=t.q;$("p-t").textContent=pctTxt(t.a,t.q);$("p-h").textContent=fmtH(t.m);$("p-d").textContent=t.n;
   var box=$("p-bars");box.innerHTML="";var mx=1,rows=[];
   for(var i=13;i>=0;i--){var d=shiftDay(new Date(),-i),e=l[dkey(d)]||{};rows.push({d:d,q:+e.q||0,a:+e.a||0});mx=Math.max(mx,+e.q||0)}
@@ -1389,6 +1413,8 @@ function show(name){
   if(name==="resumo-da-semana")renderResumo();
   if(name==="meu-desempenho")renderDesemp();
   if(name==="prioridades")renderPrio();
+  if(name==="flashcards"&&window.__renderFlash)window.__renderFlash();
+  if(name==="edital"&&window.__renderEdital)window.__renderEdital();
   if(name==="simulados"&&window.__renderSimu)window.__renderSimu();
   window.scrollTo(0,0);
 }
@@ -1408,7 +1434,7 @@ function show(name){
     book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
     ext:'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>'
   };
-  var IT=[["metas-diarias","Metas diárias","metas"],["inicio","Início","inicio"],["cronograma","Cronograma semanal","cron"],["resumo-da-semana","Resumo da semana","resumo"],["questoes","Questões","quest"],["simulados","Simulados","sim"],["meu-desempenho","Meu desempenho","desemp"],["prioridades","Prioridades","prio"],["caderno-de-erros","Caderno de erros","erros"],["mapa-mental","Mapa mental","mapa"],["cadernos","Cadernos de questões","cad"],["analise","Análise do curso","book"]];
+  var IT=[["metas-diarias","Metas diárias","metas"],["inicio","Início","inicio"],["cronograma","Cronograma semanal","cron"],["resumo-da-semana","Resumo da semana","resumo"],["questoes","Questões","quest"],["simulados","Simulados","sim"],["meu-desempenho","Meu desempenho","desemp"],["prioridades","Prioridades","prio"],["caderno-de-erros","Caderno de erros","erros"],["mapa-mental","Mapa mental","mapa"],["cadernos","Cadernos de questões","cad"],["flashcards","Flashcards","cad"],["edital","Edital","book"],["analise","Análise do curso","book"]];
   var EX=[["https://aluno.novaconcursos.com.br/#/curso-detalhes/18984","Curso na Nova"],["https://www.tecconcursos.com.br/questoes/pastas/8120226","Cadernos no TEC"],["https://www.mapadaprova.com.br/area-estudante/cadernos","Mapa da Prova"]];
   var sb=document.getElementById("sidebar");
   function svg(p){var w=document.createElement("span");w.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';return w.firstChild}
@@ -1423,6 +1449,38 @@ document.querySelectorAll("[data-go]").forEach(function(a){
     if(location.hash.slice(1)===n){show(n)}else{location.hash="#"+n}
   });
 });
+/*FLASH*/
+(function(){
+var CARDS=[["Criminalística","O que é vestígio?","Todo objeto ou material bruto, visível ou latente, constatado ou recolhido, que se relaciona à infração penal (CPP art. 158-A)."],["Criminalística","Quando começa e quando termina a cadeia de custódia?","Começa com a preservação do local ou com procedimentos policiais ou periciais que identifiquem vestígio; termina no descarte (art. 158-A)."],["Criminalística","Quais as 10 etapas da cadeia de custódia (art. 158-B)?","Reconhecimento, isolamento, fixação, coleta, acondicionamento, transporte, recebimento, processamento, armazenamento e descarte."],["Criminalística","Fixação x coleta: qual a diferença?","Fixação é a descrição detalhada do vestígio como encontrado (fotos, croqui, relatório). Coleta é o recolhimento para a perícia."],["Criminalística","Quem pode coletar vestígios?","Em regra, o perito oficial, preferencialmente (art. 158-C)."],["Criminalística","Corpo de delito: quando o exame direto é indispensável?","Quando a infração deixa vestígios: o exame é indispensável e não pode ser suprido pela confissão (CPP art. 158)."],["Criminalística","Quem faz a perícia oficial?","Perito oficial, portador de diploma de curso superior (CPP art. 159). Sem perito oficial, duas pessoas idôneas com curso superior."],["Criminalística","O que é o assistente técnico?","Profissional indicado pelas partes, que atua após a conclusão dos exames e elaboração do laudo oficial (art. 159, §3º)."],["Criminalística","Prazo do laudo pericial?","10 dias, prorrogável em casos excepcionais a requerimento dos peritos (art. 160, parágrafo único)."],["Criminalística","Vestígio, evidência e indício: diferença?","Vestígio é tudo que se encontra no local; evidência é o vestígio que se mostra relacionado ao fato; indício é a circunstância conhecida que, por indução, permite concluir outra (art. 239)."],["Criminalística","Princípios do local de crime: o que é o princípio de Locard?","Todo contato deixa marca: o autor leva e deixa vestígios no local (troca de materiais)."],["Criminalística","Local idôneo x inidôneo?","Idôneo é o local preservado, sem alteração dos vestígios. Inidôneo é o local que sofreu alteração ou contaminação."],["Criminalística","Documentoscopia: o que estuda?","A autenticidade e a falsidade de documentos: assinaturas, escritas, papel, tintas, selos, moeda."],["Medicina Legal","Medicina Legal: conceito","Ciência que aplica conhecimentos médicos e paramédicos aos interesses do Direito, ajudando a lei a ser feita, interpretada e aplicada."],["Medicina Legal","Perícia x perito x laudo?","Perícia é o exame; perito é quem faz; laudo é o documento que descreve o exame e responde aos quesitos."],["Medicina Legal","Documentos médico-legais: quais são?","Atestado, notificação, relatório, parecer e prontuário, entre outros. O laudo pericial é a peça mais completa."],["Medicina Legal","Identidade x identificação x reconhecimento?","Identidade é o conjunto de características que individualizam; identificação é o processo para estabelecê-la; reconhecimento é a confirmação por quem já conhecia."],["Medicina Legal","Identificação papiloscópica: o que significa?","Estudo das impressões digitais (datiloscopia), palmares e plantares. A impressão digital é perene, imutável e variável de pessoa para pessoa."],["Medicina Legal","Lesão corporal: contusão x ferida incisa?","Contusão é causada por instrumento contundente (equimose, hematoma). Incisa é cortante, bordas nítidas, mais longa do que profunda."],["Medicina Legal","Instrumentos: perfurante x pérfuro-cortante x perfuro-contundente?","Perfurante: ponta (agulha). Pérfuro-cortante: ponta e lâmina (faca). Pérfuro-contundente: projétil de arma de fogo."],["Medicina Legal","Tanatologia: o que estuda?","A morte e os fenômenos cadavéricos: sinais de morte, tempo de morte, causa jurídica e mecanismos da morte."],["Medicina Legal","Fenômenos cadavéricos abióticos imediatos?","Perda da consciência, imobilidade, abolição do tônus, cessação da respiração e da circulação."],["Medicina Legal","Fenômenos cadavéricos abióticos consecutivos?","Resfriamento, desidratação, livores, rigidez cadavérica (rigor mortis)."],["Medicina Legal","Fenômenos transformativos destrutivos?","Autólise, putrefação e maceração. Os conservadores são mumificação, saponificação, corificação e calcificação."],["Medicina Legal","Livor x hipóstase?","Livores cadavéricos são manchas arroxeadas nas partes baixas pela gravidade (hipóstases), surgindo de 30 min a 2 h e fixando em 8 a 12 h."],["Medicina Legal","Necropsia: o que é?","Exame interno e externo do cadáver para determinar a causa da morte, feito por perito oficial (art. 162 do CPP)."],["Medicina Legal","Declaração de óbito: quem emite?","O médico que assistiu o falecido. Em morte violenta ou suspeita, o médico legista, após necropsia."]];
+var EDITAL=["Nome oficial do cargo (Assistente de Perícia, Auxiliar ou outro)","Escolaridade exigida e requisitos do cargo","Data da prova e local","Banca organizadora","Número de questões e peso de cada matéria","Nota mínima por matéria e nota de corte (se houver eliminação)","Conteúdo programático: conferir cada tópico com o que já foi estudado","Matérias novas no edital que não estão no plano (marcar para encaixar nas semanas extras)","Tópicos do plano que não caíram no edital (reduzir tempo)","Ajustar o peso de tempo por matéria conforme o número de questões","Prova de títulos, TAF, exame médico ou psicotécnico","Prazo de inscrição e taxa","Prazo para recurso e isenção"];
+var FK="plano-pcies-flash-v1",EK2="plano-pcies-edital-v1";
+function rd2(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+function wr2(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var cur=null;
+function pick(){
+  var m=document.getElementById("fc-mat").value,st=rd2(FK,{}),pool=[];
+  CARDS.forEach(function(c,i){if(!m||c[0]===m)pool.push(i)});
+  pool.sort(function(a,b){return (st[a]||0)-(st[b]||0)});
+  var low=pool.filter(function(i){return (st[i]||0)===(st[pool[0]]||0)});
+  cur=low[Math.floor(Math.random()*low.length)];
+  document.getElementById("fc-q").textContent=CARDS[cur][0]+": "+CARDS[cur][1];
+  var a=document.getElementById("fc-a");a.textContent=CARDS[cur][2];a.hidden=true;
+  var n=0;pool.forEach(function(i){if((st[i]||0)>=2)n++});
+  document.getElementById("fc-info").textContent=n+" de "+pool.length+" cartões dominados (2 acertos seguidos). Os que você erra voltam primeiro.";
+}
+function grade(ok){if(cur==null)return;var st=rd2(FK,{});st[cur]=ok?Math.min(2,(st[cur]||0)+1):0;if(!ok)st[cur]=-1;wr2(FK,st);pick()}
+document.getElementById("fc-show").addEventListener("click",function(){document.getElementById("fc-a").hidden=false});
+document.getElementById("fc-ok").addEventListener("click",function(){grade(true)});
+document.getElementById("fc-no").addEventListener("click",function(){grade(false)});
+document.getElementById("fc-mat").addEventListener("change",pick);
+window.__renderFlash=pick;
+window.__renderEdital=function(){
+  var box=document.getElementById("ed-list"),st=rd2(EK2,{}),n=0;box.innerHTML="";
+  EDITAL.forEach(function(t,i){var l=document.createElement("label");l.className="task";l.style.display="flex";l.style.gap="8px";l.style.margin="6px 0";var cb=document.createElement("input");cb.type="checkbox";cb.checked=!!st[i];if(cb.checked)n++;cb.addEventListener("change",function(){var s=rd2(EK2,{});s[i]=cb.checked;wr2(EK2,s);window.__renderEdital()});var sp=document.createElement("span");sp.textContent=t;l.appendChild(cb);l.appendChild(sp);box.appendChild(l)});
+  document.getElementById("ed-info").textContent=n+" de "+EDITAL.length+" itens conferidos.";
+};
+})();
+
 window.addEventListener("hashchange",function(){show(location.hash.slice(1))});
 show(location.hash.slice(1));
 })();
