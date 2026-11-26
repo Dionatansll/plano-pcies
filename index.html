@@ -358,11 +358,11 @@ footer{color:var(--muted);font-size:13px}
 <h2>Flashcards</h2>
 <p class="sub">Cartões de Criminalística e Medicina Legal para 10 minutos por dia. Leia a pergunta, responda de cabeça, toque em Ver resposta e marque se acertou. Cartões feitos de memória: se uma resposta divergir da sua aula ou do texto da lei, vale a aula.</p>
 <div class="logform" style="max-width:260px"><label>Matéria<select id="fc-mat"><option value="">Todas</option><option>Criminalística</option><option>Medicina Legal</option></select></label></div>
-<div class="panel" style="margin-top:14px;max-width:640px">
-<p class="sub" id="fc-tag" style="margin:0"></p>
-<p id="fc-q" style="font-weight:600;font-size:18px;margin:8px 0 0"></p>
-<p id="fc-a" style="margin:12px 0 0;padding-top:12px;border-top:1px solid var(--accent)" hidden></p>
-<div class="btns"><button type="button" class="erbtn" id="fc-show">Ver resposta</button><button type="button" class="erbtn" id="fc-ok" hidden>Acertei</button><button type="button" class="erbtn danger" id="fc-no" hidden>Errei</button></div>
+<div class="panel" id="fc-card" style="margin-top:16px;min-height:55vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:32px 24px">
+<p class="sub" id="fc-tag" style="margin:0;font-size:17px"></p>
+<p id="fc-q" style="font-weight:600;font-size:clamp(22px,3.2vw,34px);line-height:1.35;margin:16px 0 0;max-width:30ch"></p>
+<p id="fc-a" style="font-size:clamp(18px,2.2vw,24px);line-height:1.5;margin:24px 0 0;padding-top:24px;border-top:2px solid var(--accent);max-width:46ch" hidden></p>
+<div class="btns" style="justify-content:center;margin-top:32px"><button type="button" class="erbtn" id="fc-show" style="font-size:19px;padding:14px 34px">Ver resposta</button><button type="button" class="erbtn" id="fc-ok" style="font-size:19px;padding:14px 34px" hidden>Acertei</button><button type="button" class="erbtn danger" id="fc-no" style="font-size:19px;padding:14px 34px" hidden>Errei</button></div>
 </div>
 <p class="sub" id="fc-info"></p>
 </section>
@@ -1412,6 +1412,7 @@ function show(name){
   if(!VIEWS[name])name="inicio";
   Object.keys(VIEWS).forEach(function(k){$(VIEWS[k]).hidden=(k!==name)});
   document.querySelectorAll(".sidebar a[data-go]").forEach(function(a){a.classList.toggle("on",a.getAttribute("data-go")===name)});
+  var __h=document.querySelector("header");if(__h)__h.style.display=(name==="flashcards")?"none":"";
   if(name==="inicio")renderDash();
   if(name==="metas-diarias")renderMetas();
   if(name==="resumo-da-semana")renderResumo();
